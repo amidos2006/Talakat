@@ -9,7 +9,7 @@ class ConditionalEvent implements GameEvent{
     constructor(input:any){
         this.health = 100;
         if("health" in input){
-            this.health = parseInt(input["health"]);
+            this.health = 100 * parseFloat(input["health"]);
         }
         this.events = [];
         if("events" in input){

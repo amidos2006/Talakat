@@ -23,10 +23,10 @@ class Boss implements Entity{
         if("position" in script){
             let parts:string[] = script["position"].split(",");
             if(parts.length >= 1){
-                this.x = parseInt(parts[0]);
+                this.x = parseFloat(parts[0]) * width;
             }
             if(parts.length >= 2){
-                this.y = parseInt(parts[1]);
+                this.y = parseFloat(parts[1]) * height;
             }
         }
         if("script" in script){

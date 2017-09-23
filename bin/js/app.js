@@ -131,7 +131,7 @@ var ConditionalEvent = (function () {
     function ConditionalEvent(input) {
         this.health = 100;
         if ("health" in input) {
-            this.health = parseInt(input["health"]);
+            this.health = 100 * parseFloat(input["health"]);
         }
         this.events = [];
         if ("events" in input) {
@@ -322,10 +322,10 @@ var Boss = (function () {
         if ("position" in script) {
             var parts = script["position"].split(",");
             if (parts.length >= 1) {
-                this.x = parseInt(parts[0]);
+                this.x = parseFloat(parts[0]) * width;
             }
             if (parts.length >= 2) {
-                this.y = parseInt(parts[1]);
+                this.y = parseFloat(parts[1]) * height;
             }
         }
         if ("script" in script) {
