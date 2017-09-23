@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Bullet Hell Engine</title>
+    <style>
+        #input {
+            position: fixed;
+            left: 410px;
+        }
+
+        #game {
+            position: fixed;
+            left: 0px;
+        }
+
+        #play {
+            position: relative;
+            width: 322px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game"></div>
+    <div id="input">
+        <textarea id="inputtext" rows="47" cols="50">
+{
+    "spawners":{
+        "first":{
+            "pattern":["bullet"],
+            "patternTime":"4",
+            "spawnerPhase":"0,180,2,0,reverse",
+            "spawnedSpeed":"2",
+            "spawnedNumber":"2",
+            "spawnedAngle":"360"
+        },
+        "second":{
+            "pattern":["three", "wait", "wait"],
+            "patternTime":"2",
+            "spawnerPhase":"0,360,10,12,circle",
+            "spawnedSpeed":"0",
+            "spawnedNumber":"4",
+            "spawnedAngle":"360",
+            "spawnerRadius":"20"
+        },
+       "three":{
+             "pattern":["bullet"],
+             "patternRepeat":"1",
+             "spawnedAngle":"30",
+             "spawnedNumber":"3",
+             "spawnedSpeed": "4"
+        }
+    },
+    "boss":{
+        "script":[
+            {
+                "health":"100",
+                "events":["spawn,first"]
+            },
+            {
+                "health":"80",
+                "events":["spawn,second"]
+            }
+        ]
+    }
+}
+            </textarea>
+        <br/>
+        <button id="play" onclick="startGame(document.getElementById('inputtext').value)">Play</button>
+    </div>
+</body>
+<script src="js/p5.js"></script>
+<script src="js/app.js"></script>
+</html>
