@@ -34,10 +34,10 @@ class Player implements Entity{
         return this.currentLives;
     }
 
-    die():void{
+    die(world:World):void{
         this.currentLives -= 1;
         if(this.currentLives > 0){
-            (<GameWorld>currentWorld).removeAllBullets();
+            (<GameWorld>world).removeAllBullets();
             this.x = this.originalX;
             this.y = this.originalY;
         }
@@ -61,7 +61,7 @@ class Player implements Entity{
         this.y += delta.y;
     }
 
-    update(): void {
+    update(world:World): void {
         if(this.x - this.radius < 0){
             this.x = this.radius;
         }

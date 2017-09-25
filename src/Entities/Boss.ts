@@ -53,12 +53,12 @@ class Boss implements Entity{
         return this.health / this.maxHealth;
     }
     
-    update(): void {
+    update(world:World): void {
         this.health -= 1;
         if(this.health < 0){
             this.health = 0;
         }
-        this.script.update(this.x, this.y, 100 * this.health / this.maxHealth);
+        this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
     }
 
     draw(): void {

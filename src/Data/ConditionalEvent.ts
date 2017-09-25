@@ -50,9 +50,9 @@ class ConditionalEvent implements GameEvent{
         }
     }
 
-    apply(x: number, y: number): void {
+    apply(world:World, x: number, y: number): void {
         for(let e of this.events){
-            e.apply(x, y);
+            e.apply(world, x, y);
         }
     }
 }

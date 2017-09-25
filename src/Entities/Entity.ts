@@ -4,6 +4,6 @@ interface Entity{
     
     clone():Entity;
     getCollider():Collider;
-    update():void;
+    update(world:World):void;
     draw():void;
 }

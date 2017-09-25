@@ -46,6 +46,7 @@ class GameWorld implements World{
         }
         newWorld.player = <Player>this.player.clone();
         newWorld.boss = <Boss>this.boss.clone();
+        newWorld.definedSpawners = this.definedSpawners;
         return newWorld;
     }
 
@@ -66,7 +67,7 @@ class GameWorld implements World{
     checkCollision(entity: Entity): void {
         let result:boolean = this.player.getCollider().checkCollision(entity.getCollider());
         if(result){
-            this.player.die();
+            this.player.die(this);
         }
     }
 
@@ -101,16 +102,16 @@ class GameWorld implements World{
 
         if(this.player != null){
             this.player.applyAction(action);
-            this.player.update();
+            this.player.update(this);
         }
         if(this.boss != null){
-            this.boss.update();
+            this.boss.update(this);
         }
         for(let s of this.spawners){
-            s.update();
+            s.update(this);
         }
         for(let e of this.bullets){
-            e.update();
+            e.update(this);
         }
         for(let e of this.created){
             if(e instanceof Bullet){

@@ -225,7 +225,7 @@ class Spawner implements Entity{
         return spawner;
     }
     
-    update(): void {
+    update(world:World): void {
         if(this.currentPatternTime > 0){
             this.currentPatternTime -= 1;
         }
@@ -242,7 +242,7 @@ class Spawner implements Entity{
         
         if(this.x + this.spawnerRadius.currentValue < 0 || this.y + this.spawnerRadius.currentValue < 0 ||
             this.x - this.spawnerRadius.currentValue > width || this.y - this.spawnerRadius.currentValue > height){
-            currentWorld.removeEntity(this);
+            world.removeEntity(this);
         }
 
         if(this.currentPatternTime == 0){
@@ -257,20 +257,20 @@ class Spawner implements Entity{
                     if(this.spawnPattern[this.patternIndex] == "bullet"){
                         let bullet:Bullet = new Bullet(positionX, positionY);
                         bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.spawnedRadius.currentValue, this.spawnedColor.currentValue)
-                        currentWorld.addEntity(bullet);
+                        world.addEntity(bullet);
                     }
                     else{
-                        let spawner:Spawner = (<GameWorld>currentWorld).definedSpawners[this.spawnPattern[this.patternIndex]].clone();
+                        let spawner:Spawner = (<GameWorld>world).definedSpawners[this.spawnPattern[this.patternIndex]].clone();
                         if(spawner){
                             spawner.setStartingValues(positionX, positionY, this.spawnedSpeed.currentValue, spawnedAngle);
-                            currentWorld.addEntity(spawner);
+                            world.addEntity(spawner);
                         }
                     }
                 }
                 if(this.patternRepeat > 0){
                     this.patternRepeat -= 1;
                     if(this.patternRepeat == 0){
-                        currentWorld.removeEntity(this);
+                        world.removeEntity(this);
                     }
                 }
             }

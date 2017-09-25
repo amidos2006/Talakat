@@ -1,3 +1,3 @@
 interface GameEvent{
-    apply(x:number, y:number):void;
+    apply(world:World, x:number, y:number):void;
 }

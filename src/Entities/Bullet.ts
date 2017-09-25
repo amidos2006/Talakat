@@ -34,7 +34,7 @@ class Bullet implements Entity{
         return this.collider;
     }
 
-    update(): void {
+    update(world:World): void {
         let result = this.pattern.getNextValues(this.x, this.y, this.radius, this.color);
         this.x = result["x"];
         this.y = result["y"];
@@ -47,10 +47,10 @@ class Bullet implements Entity{
         
         if(this.x + this.radius < 0 || this.y + this.radius < 0 ||
             this.x - this.radius > width || this.y - this.radius > height){
-            currentWorld.removeEntity(this);
+            world.removeEntity(this);
         }
 
-        currentWorld.checkCollision(this);
+        world.checkCollision(this);
     }
 
     draw(): void {

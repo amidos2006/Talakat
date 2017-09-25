@@ -7,15 +7,15 @@ class ClearEvent implements GameEvent{
         this.name = name;
     }
 
-    apply(x:number, y:number): void {
+    apply(world:World, x:number, y:number): void {
         if(this.name.toLowerCase() == "bullet"){
-            (<GameWorld>currentWorld).removeAllBullets();
+            (<GameWorld>world).removeAllBullets();
         }
         else if(this.name.toLowerCase() == "spawner"){
-            (<GameWorld>currentWorld).removeAllSpawners();
+            (<GameWorld>world).removeAllSpawners();
         }
         else{
-            (<GameWorld>currentWorld).removeSpawners(this.name.toLowerCase());
+            (<GameWorld>world).removeSpawners(this.name.toLowerCase());
         }
     }
 }

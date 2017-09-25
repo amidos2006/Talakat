@@ -22,12 +22,12 @@ class GameScript{
         return script;
     }
 
-    update(x:number, y:number, health:number):void{
+    update(world:World, x:number, y:number, health:number):void{
         if(this.currentIndex >= this.events.length){
             return;
         }
         if(health <= this.events[this.currentIndex].health){
-            this.events[this.currentIndex].apply(x, y);
+            this.events[this.currentIndex].apply(world, x, y);
             this.currentIndex += 1;
         }
     }

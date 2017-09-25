@@ -88,15 +88,15 @@ var ClearEvent = (function () {
     function ClearEvent(name) {
         this.name = name;
     }
-    ClearEvent.prototype.apply = function (x, y) {
+    ClearEvent.prototype.apply = function (world, x, y) {
         if (this.name.toLowerCase() == "bullet") {
-            currentWorld.removeAllBullets();
+            world.removeAllBullets();
         }
         else if (this.name.toLowerCase() == "spawner") {
-            currentWorld.removeAllSpawners();
+            world.removeAllSpawners();
         }
         else {
-            currentWorld.removeSpawners(this.name.toLowerCase());
+            world.removeSpawners(this.name.toLowerCase());
         }
     };
     return ClearEvent;
@@ -110,17 +110,17 @@ var SpawnEvent = (function () {
         this.speed = speed;
         this.direction = direction;
     }
-    SpawnEvent.prototype.apply = function (x, y) {
+    SpawnEvent.prototype.apply = function (world, x, y) {
         var spawned = null;
         if (this.name.toLowerCase() == "bullet") {
             spawned = new Bullet(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase));
             spawned.initialize(this.speed, this.direction);
         }
         else {
-            spawned = currentWorld.definedSpawners[this.name.toLowerCase()].clone();
+            spawned = world.definedSpawners[this.name.toLowerCase()].clone();
             spawned.setStartingValues(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase), this.speed, this.direction);
         }
-        currentWorld.addEntity(spawned);
+        world.addEntity(spawned);
     };
     return SpawnEvent;
 }());
@@ -171,10 +171,10 @@ var ConditionalEvent = (function () {
             }
         }
     }
-    ConditionalEvent.prototype.apply = function (x, y) {
+    ConditionalEvent.prototype.apply = function (world, x, y) {
         for (var _i = 0, _a = this.events; _i < _a.length; _i++) {
             var e = _a[_i];
-            e.apply(x, y);
+            e.apply(world, x, y);
         }
     };
     return ConditionalEvent;
@@ -197,12 +197,12 @@ var GameScript = (function () {
         script.currentIndex = this.currentIndex;
         return script;
     };
-    GameScript.prototype.update = function (x, y, health) {
+    GameScript.prototype.update = function (world, x, y, health) {
         if (this.currentIndex >= this.events.length) {
             return;
         }
         if (health <= this.events[this.currentIndex].health) {
-            this.events[this.currentIndex].apply(x, y);
+            this.events[this.currentIndex].apply(world, x, y);
             this.currentIndex += 1;
         }
     };
@@ -348,12 +348,12 @@ var Boss = (function () {
     Boss.prototype.getHealth = function () {
         return this.health / this.maxHealth;
     };
-    Boss.prototype.update = function () {
+    Boss.prototype.update = function (world) {
         this.health -= 1;
         if (this.health < 0) {
             this.health = 0;
         }
-        this.script.update(this.x, this.y, 100 * this.health / this.maxHealth);
+        this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
     };
     Boss.prototype.draw = function () {
     };
@@ -386,7 +386,7 @@ var Bullet = (function () {
     Bullet.prototype.getCollider = function () {
         return this.collider;
     };
-    Bullet.prototype.update = function () {
+    Bullet.prototype.update = function (world) {
         var result = this.pattern.getNextValues(this.x, this.y, this.radius, this.color);
         this.x = result["x"];
         this.y = result["y"];
@@ -397,9 +397,9 @@ var Bullet = (function () {
         this.collider.radius = this.radius;
         if (this.x + this.radius < 0 || this.y + this.radius < 0 ||
             this.x - this.radius > width || this.y - this.radius > height) {
-            currentWorld.removeEntity(this);
+            world.removeEntity(this);
         }
-        currentWorld.checkCollision(this);
+        world.checkCollision(this);
     };
     Bullet.prototype.draw = function () {
         strokeWeight(0);
@@ -433,10 +433,10 @@ var Player = (function () {
     Player.prototype.getLives = function () {
         return this.currentLives;
     };
-    Player.prototype.die = function () {
+    Player.prototype.die = function (world) {
         this.currentLives -= 1;
         if (this.currentLives > 0) {
-            currentWorld.removeAllBullets();
+            world.removeAllBullets();
             this.x = this.originalX;
             this.y = this.originalY;
         }
@@ -456,7 +456,7 @@ var Player = (function () {
         this.x += delta.x;
         this.y += delta.y;
     };
-    Player.prototype.update = function () {
+    Player.prototype.update = function (world) {
         if (this.x - this.radius < 0) {
             this.x = this.radius;
         }
@@ -679,7 +679,7 @@ var Spawner = (function () {
         spawner.spawnedAngle = this.spawnedAngle.clone();
         return spawner;
     };
-    Spawner.prototype.update = function () {
+    Spawner.prototype.update = function (world) {
         if (this.currentPatternTime > 0) {
             this.currentPatternTime -= 1;
         }
@@ -694,7 +694,7 @@ var Spawner = (function () {
         this.y = result["y"];
         if (this.x + this.spawnerRadius.currentValue < 0 || this.y + this.spawnerRadius.currentValue < 0 ||
             this.x - this.spawnerRadius.currentValue > width || this.y - this.spawnerRadius.currentValue > height) {
-            currentWorld.removeEntity(this);
+            world.removeEntity(this);
         }
         if (this.currentPatternTime == 0) {
             this.patternIndex = (this.patternIndex + 1) % this.spawnPattern.length;
@@ -707,20 +707,20 @@ var Spawner = (function () {
                     if (this.spawnPattern[this.patternIndex] == "bullet") {
                         var bullet = new Bullet(positionX, positionY);
                         bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.spawnedRadius.currentValue, this.spawnedColor.currentValue);
-                        currentWorld.addEntity(bullet);
+                        world.addEntity(bullet);
                     }
                     else {
-                        var spawner = currentWorld.definedSpawners[this.spawnPattern[this.patternIndex]].clone();
+                        var spawner = world.definedSpawners[this.spawnPattern[this.patternIndex]].clone();
                         if (spawner) {
                             spawner.setStartingValues(positionX, positionY, this.spawnedSpeed.currentValue, spawnedAngle);
-                            currentWorld.addEntity(spawner);
+                            world.addEntity(spawner);
                         }
                     }
                 }
                 if (this.patternRepeat > 0) {
                     this.patternRepeat -= 1;
                     if (this.patternRepeat == 0) {
-                        currentWorld.removeEntity(this);
+                        world.removeEntity(this);
                     }
                 }
             }
@@ -793,6 +793,7 @@ var GameWorld = (function () {
         }
         newWorld.player = this.player.clone();
         newWorld.boss = this.boss.clone();
+        newWorld.definedSpawners = this.definedSpawners;
         return newWorld;
     };
     GameWorld.prototype.isWon = function () {
@@ -810,7 +811,7 @@ var GameWorld = (function () {
     GameWorld.prototype.checkCollision = function (entity) {
         var result = this.player.getCollider().checkCollision(entity.getCollider());
         if (result) {
-            this.player.die();
+            this.player.die(this);
         }
     };
     GameWorld.prototype.addEntity = function (entity) {
@@ -839,18 +840,18 @@ var GameWorld = (function () {
         }
         if (this.player != null) {
             this.player.applyAction(action);
-            this.player.update();
+            this.player.update(this);
         }
         if (this.boss != null) {
-            this.boss.update();
+            this.boss.update(this);
         }
         for (var _i = 0, _a = this.spawners; _i < _a.length; _i++) {
             var s = _a[_i];
-            s.update();
+            s.update(this);
         }
         for (var _b = 0, _c = this.bullets; _b < _c.length; _b++) {
             var e = _c[_b];
-            e.update();
+            e.update(this);
         }
         for (var _d = 0, _e = this.created; _d < _e.length; _d++) {
             var e = _e[_d];
