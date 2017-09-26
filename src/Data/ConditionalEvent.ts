@@ -23,10 +23,10 @@ class ConditionalEvent implements GameEvent{
                 let speed:number=0;
                 let direction:number=0;
                 if(parts.length >= 1){
-                    type = parts[0].toLowerCase();
+                    type = parts[0].trim().toLowerCase();
                 }
                 if(parts.length >= 2){
-                    name = parts[1].toLowerCase();
+                    name = parts[1].trim().toLowerCase();
                 }
                 if(parts.length >= 3){
                     radius = parseInt(parts[2]);

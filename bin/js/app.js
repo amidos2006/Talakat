@@ -23,6 +23,69 @@ function startGame(input) {
     var script = JSON.parse(input);
     newWorld.initialize(script);
 }
+function startRandomGame() {
+    var spawner = {
+        "origin": ["{#patternParam#, #timeParam#, #repeatParam#}", "{#patternParam#, #timeParam#, #repeatParam#, #sPhaseParam#, #sRadiusParam#}", "{#patternParam#, #timeParam#, #repeatParam#, #sPhaseParam#, #sRadiusParam#, #numberParam#, #angleParam#, #speedParam#, #radiusParam#}"],
+        "patternParam": ["\"pattern\": \\[#patternNames#\\]"],
+        "timeParam": ["\"patternTime\": \"#timeNumber#\""],
+        "repeatParam": ["\"patternRepeat\":\"#repeatNumber#\""],
+        "sPhaseParam": ["\"spawnerPhase\":\"#angleModifier#\""],
+        "sRadiusParam": ["\"spawnerRadius\": \"#radiusModifier#\""],
+        "numberParam": ["\"spawnedNumber\": \"#numberModifier#\""],
+        "angleParam": ["\"spawnedAngle\": \"#angleModifier#\""],
+        "speedParam": ["\"spawnedSpeed\": \"#numberModifier#\""],
+        "radiusParam": ["\"bulletRadius\": \"#radiusModifier#\""],
+        "patternNames": ["\"#name#\"", "#patternNames#, \"#name#\""],
+        "angleModifier": ["#angleNumber#", "#smallAngleNumber#, #largeAngleNumber#, #largeRateNumber#, #timeNumber#, #bounds#"],
+        "radiusModifier": ["#radiusNumber#", "#smallRadiusNumber#, #largeRadiusNumber#, #largeRateNumber#, #timeNumber#, #bounds#"],
+        "numberModifier": ["#number#", "#smallNumber#, #largeNumber#, #smallRateNumber#, #timeNumber#, #bounds#"],
+        "name": ["bullet", "bullet", "bullet", "bullet", "bullet", "bullet", "bullet", "wait", "wait", "wait", "first", "second", "third", "fourth", "fifth"],
+        "number": ["1", "2", "3", "4", "5", "6"],
+        "smallNumber": ["1", "2", "3"],
+        "largeNumber": ["4", "5", "6"],
+        "timeNumber": ["2", "3", "4", "5", "6"],
+        "repeatNumber": ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "1", "2", "3", "4", "5"],
+        "angleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
+        "smallAngleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170"],
+        "largeAngleNumber": ["180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
+        "radiusNumber": ["0", "20", "40", "60", "80", "100"],
+        "smallRadiusNumber": ["0", "10", "20", "30", "40", "50"],
+        "largeRadiusNumber": ["60", "70", "80", "90", "100"],
+        "smallRateNumber": ["-1", "-0.8", "-0.7", "-0.6", "-0.5", "-0.4", "-0.3", "-0.2", "-0.1", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"],
+        "largeRateNumber": ["-5", "-4", "-3", "-2", "-1", "1", "2", "3", "4", "5"],
+        "bounds": ["circle", "reverse"]
+    };
+    var boss = {
+        "origin": ["\\[#script#\\]"],
+        "script": ["#condEvent#", "#script#, #condEvent#"],
+        "condEvent": ["{\"health\":\"#percent#\", \"events\":\\[#events#\\]}"],
+        "percent": ["1", "0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1"],
+        "events": ["\"#event#\"", "#events#, \"#event#\""],
+        "event": ["#type#, #name#, #radiusNumber#, #angleNumber#, #speedNumber#, #angleNumber#", "#type#, #name#", "#type#, #name#, #radiusNumber#, #angleNumber#"],
+        "type": ["clear", "spawn", "spawn", "spawn", "spawn", "spawn"],
+        "name": ["first", "second", "third", "fourth", "fifth"],
+        "radiusNumber": ["0", "20", "40", "60", "80", "100"],
+        "angleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
+        "speedNumber": ["1", "2", "3", "4"]
+    };
+    var input = "{\"spawners\":{";
+    for (var _i = 0, _a = boss.name; _i < _a.length; _i++) {
+        var name_1 = _a[_i];
+        spawner.name.splice(spawner.name.indexOf(name_1), 1);
+        var spawnerGrammar = tracery.createGrammar(spawner);
+        input += "\"" + name_1 + "\":" + spawnerGrammar.flatten("#origin#") + ",";
+        spawner.name.push(name_1);
+    }
+    var bossGrammar = tracery.createGrammar(boss);
+    input = input.substring(0, input.length - 1) + "}, \"boss\":{\"script\":[";
+    for (var _b = 0, _c = boss.percent; _b < _c.length; _b++) {
+        var p = _c[_b];
+        input += "{\"health\":" + "\"" + p + "\",\"events\":[" + bossGrammar.flatten("#events#") + "]},";
+    }
+    input = input.substring(0, input.length - 1) + "]}}";
+    document.getElementById('inputtext').innerText = input;
+    startGame(input);
+}
 function setKey(key, down) {
     if (key == keys.LEFT_ARROW) {
         keys.left = down;
@@ -44,7 +107,6 @@ function keyReleased() {
     setKey(keyCode, false);
 }
 function draw() {
-    background(0, 0, 0);
     action.x = 0;
     action.y = 0;
     if (currentWorld != null) {
@@ -61,6 +123,7 @@ function draw() {
             action.y += 1;
         }
         currentWorld.update(action);
+        background(0, 0, 0);
         currentWorld.draw();
     }
     if (newWorld != null) {
@@ -139,16 +202,16 @@ var ConditionalEvent = (function () {
                 var s = _a[_i];
                 var parts = s.split(",");
                 var type = "";
-                var name_1 = "";
+                var name_2 = "";
                 var radius = 0;
                 var phase = 0;
                 var speed = 0;
                 var direction = 0;
                 if (parts.length >= 1) {
-                    type = parts[0].toLowerCase();
+                    type = parts[0].trim().toLowerCase();
                 }
                 if (parts.length >= 2) {
-                    name_1 = parts[1].toLowerCase();
+                    name_2 = parts[1].trim().toLowerCase();
                 }
                 if (parts.length >= 3) {
                     radius = parseInt(parts[2]);
@@ -163,10 +226,10 @@ var ConditionalEvent = (function () {
                     direction = parseInt(parts[5]);
                 }
                 if (type == "spawn" || type == "add") {
-                    this.events.push(new SpawnEvent(name_1, radius, phase, speed, direction));
+                    this.events.push(new SpawnEvent(name_2, radius, phase, speed, direction));
                 }
                 if (type == "delete" || type == "clear") {
-                    this.events.push(new ClearEvent(name_1));
+                    this.events.push(new ClearEvent(name_2));
                 }
             }
         }
@@ -727,10 +790,10 @@ var Spawner = (function () {
         }
     };
     Spawner.prototype.draw = function () {
-        stroke(color(100, 100, 255));
-        strokeWeight(2);
-        noFill();
-        ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue);
+        // stroke(color(100, 100, 255));
+        // strokeWeight(2);
+        // noFill();
+        // ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue)
     };
     return Spawner;
 }());
@@ -770,9 +833,9 @@ var GameWorld = (function () {
         this.boss = new Boss();
         if ("spawners" in script) {
             this.definedSpawners = {};
-            for (var name_2 in script["spawners"]) {
-                this.definedSpawners[name_2.toLowerCase()] = new Spawner(name_2.toLowerCase());
-                this.definedSpawners[name_2.toLowerCase()].initialize(script["spawners"][name_2]);
+            for (var name_3 in script["spawners"]) {
+                this.definedSpawners[name_3.toLowerCase()] = new Spawner(name_3.toLowerCase());
+                this.definedSpawners[name_3.toLowerCase()].initialize(script["spawners"][name_3]);
             }
         }
         if ("boss" in script) {

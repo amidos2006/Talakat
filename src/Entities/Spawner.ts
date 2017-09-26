@@ -278,9 +278,9 @@ class Spawner implements Entity{
     }
 
     draw(): void {
-        stroke(color(100, 100, 255));
-        strokeWeight(2);
-        noFill();
-        ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue)
+        // stroke(color(100, 100, 255));
+        // strokeWeight(2);
+        // noFill();
+        // ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue)
     }
 }
