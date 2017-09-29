@@ -11,7 +11,7 @@
             "suppressTaskName": true,
             "isBuildCommand": true,
             "command": "tsc",
-            "args": ["--outFile", "bin/engine.js", "-d"]
+            "args": ["--outFile", "bin/talakat.js", "-d"]
         }
     ]
 }
