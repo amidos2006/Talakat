@@ -3,7 +3,7 @@
 class GameWorld implements World{
     definedSpawners:any;
 
-    player: Player;
+    player:Player;
     boss:Boss;
     bullets:Bullet[];
     spawners:Spawner[];

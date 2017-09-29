@@ -1,136 +1,3 @@
-var keys = {
-    LEFT_ARROW: 37,
-    RIGHT_ARROW: 39,
-    UP_ARROW: 38,
-    DOWN_ARROW: 40,
-    left: false,
-    right: false,
-    up: false,
-    down: false
-};
-var newWorld = null;
-var currentWorld = null;
-var action = null;
-function preload() {
-}
-function setup() {
-    var canvas = createCanvas(400, 640);
-    canvas.parent("game");
-    action = new Point();
-}
-function startGame(input) {
-    newWorld = new GameWorld();
-    var script = JSON.parse(input);
-    newWorld.initialize(script);
-}
-function startRandomGame() {
-    var spawner = {
-        "origin": ["{#patternParam#, #timeParam#, #repeatParam#}", "{#patternParam#, #timeParam#, #repeatParam#, #sPhaseParam#, #sRadiusParam#}", "{#patternParam#, #timeParam#, #repeatParam#, #sPhaseParam#, #sRadiusParam#, #numberParam#, #angleParam#, #speedParam#, #radiusParam#}"],
-        "patternParam": ["\"pattern\": \\[#patternNames#\\]"],
-        "timeParam": ["\"patternTime\": \"#timeNumber#\""],
-        "repeatParam": ["\"patternRepeat\":\"#repeatNumber#\""],
-        "sPhaseParam": ["\"spawnerPhase\":\"#angleModifier#\""],
-        "sRadiusParam": ["\"spawnerRadius\": \"#radiusModifier#\""],
-        "numberParam": ["\"spawnedNumber\": \"#numberModifier#\""],
-        "angleParam": ["\"spawnedAngle\": \"#angleModifier#\""],
-        "speedParam": ["\"spawnedSpeed\": \"#numberModifier#\""],
-        "radiusParam": ["\"bulletRadius\": \"#radiusModifier#\""],
-        "patternNames": ["\"#name#\"", "#patternNames#, \"#name#\""],
-        "angleModifier": ["#angleNumber#", "#smallAngleNumber#, #largeAngleNumber#, #largeRateNumber#, #timeNumber#, #bounds#"],
-        "radiusModifier": ["#radiusNumber#", "#smallRadiusNumber#, #largeRadiusNumber#, #largeRateNumber#, #timeNumber#, #bounds#"],
-        "numberModifier": ["#number#", "#smallNumber#, #largeNumber#, #smallRateNumber#, #timeNumber#, #bounds#"],
-        "name": ["bullet", "bullet", "bullet", "bullet", "bullet", "bullet", "bullet", "wait", "wait", "wait", "first", "second", "third", "fourth", "fifth"],
-        "number": ["1", "2", "3", "4", "5", "6"],
-        "smallNumber": ["1", "2", "3"],
-        "largeNumber": ["4", "5", "6"],
-        "timeNumber": ["2", "3", "4", "5", "6"],
-        "repeatNumber": ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "1", "2", "3", "4", "5"],
-        "angleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
-        "smallAngleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170"],
-        "largeAngleNumber": ["180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
-        "radiusNumber": ["0", "20", "40", "60", "80", "100"],
-        "smallRadiusNumber": ["0", "10", "20", "30", "40", "50"],
-        "largeRadiusNumber": ["60", "70", "80", "90", "100"],
-        "smallRateNumber": ["-1", "-0.8", "-0.7", "-0.6", "-0.5", "-0.4", "-0.3", "-0.2", "-0.1", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1"],
-        "largeRateNumber": ["-5", "-4", "-3", "-2", "-1", "1", "2", "3", "4", "5"],
-        "bounds": ["circle", "reverse"]
-    };
-    var boss = {
-        "origin": ["\\[#script#\\]"],
-        "script": ["#condEvent#", "#script#, #condEvent#"],
-        "condEvent": ["{\"health\":\"#percent#\", \"events\":\\[#events#\\]}"],
-        "percent": ["1", "0.9", "0.8", "0.7", "0.6", "0.5", "0.4", "0.3", "0.2", "0.1"],
-        "events": ["\"#event#\"", "#events#, \"#event#\""],
-        "event": ["#type#, #name#, #radiusNumber#, #angleNumber#, #speedNumber#, #angleNumber#", "#type#, #name#", "#type#, #name#, #radiusNumber#, #angleNumber#"],
-        "type": ["clear", "spawn", "spawn", "spawn", "spawn", "spawn"],
-        "name": ["first", "second", "third", "fourth", "fifth"],
-        "radiusNumber": ["0", "20", "40", "60", "80", "100"],
-        "angleNumber": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", "310", "320", "330", "340", "350"],
-        "speedNumber": ["1", "2", "3", "4"]
-    };
-    var input = "{\"spawners\":{";
-    for (var _i = 0, _a = boss.name; _i < _a.length; _i++) {
-        var name_1 = _a[_i];
-        spawner.name.splice(spawner.name.indexOf(name_1), 1);
-        var spawnerGrammar = tracery.createGrammar(spawner);
-        input += "\"" + name_1 + "\":" + spawnerGrammar.flatten("#origin#") + ",";
-        spawner.name.push(name_1);
-    }
-    var bossGrammar = tracery.createGrammar(boss);
-    input = input.substring(0, input.length - 1) + "}, \"boss\":{\"script\":[";
-    for (var _b = 0, _c = boss.percent; _b < _c.length; _b++) {
-        var p = _c[_b];
-        input += "{\"health\":" + "\"" + p + "\",\"events\":[" + bossGrammar.flatten("#events#") + "]},";
-    }
-    input = input.substring(0, input.length - 1) + "]}}";
-    document.getElementById('inputtext').innerText = input;
-    startGame(input);
-}
-function setKey(key, down) {
-    if (key == keys.LEFT_ARROW) {
-        keys.left = down;
-    }
-    if (key == keys.RIGHT_ARROW) {
-        keys.right = down;
-    }
-    if (key == keys.UP_ARROW) {
-        keys.up = down;
-    }
-    if (key == keys.DOWN_ARROW) {
-        keys.down = down;
-    }
-}
-function keyPressed() {
-    setKey(keyCode, true);
-}
-function keyReleased() {
-    setKey(keyCode, false);
-}
-function draw() {
-    action.x = 0;
-    action.y = 0;
-    if (currentWorld != null) {
-        if (keys.left) {
-            action.x -= 1;
-        }
-        if (keys.right) {
-            action.x += 1;
-        }
-        if (keys.up) {
-            action.y -= 1;
-        }
-        if (keys.down) {
-            action.y += 1;
-        }
-        currentWorld.update(action);
-        background(0, 0, 0);
-        currentWorld.draw();
-    }
-    if (newWorld != null) {
-        currentWorld = newWorld;
-        newWorld = null;
-    }
-}
 var CircleCollider = (function () {
     function CircleCollider(x, y, radius) {
         this.position = new Point(x, y);
@@ -202,7 +69,7 @@ var ConditionalEvent = (function () {
                 var s = _a[_i];
                 var parts = s.split(",");
                 var type = "";
-                var name_2 = "";
+                var name_1 = "";
                 var radius = 0;
                 var phase = 0;
                 var speed = 0;
@@ -211,7 +78,7 @@ var ConditionalEvent = (function () {
                     type = parts[0].trim().toLowerCase();
                 }
                 if (parts.length >= 2) {
-                    name_2 = parts[1].trim().toLowerCase();
+                    name_1 = parts[1].trim().toLowerCase();
                 }
                 if (parts.length >= 3) {
                     radius = parseInt(parts[2]);
@@ -226,10 +93,10 @@ var ConditionalEvent = (function () {
                     direction = parseInt(parts[5]);
                 }
                 if (type == "spawn" || type == "add") {
-                    this.events.push(new SpawnEvent(name_2, radius, phase, speed, direction));
+                    this.events.push(new SpawnEvent(name_1, radius, phase, speed, direction));
                 }
                 if (type == "delete" || type == "clear") {
-                    this.events.push(new ClearEvent(name_2));
+                    this.events.push(new ClearEvent(name_1));
                 }
             }
         }
@@ -598,7 +465,7 @@ var Spawner = (function () {
                 this.spawnerPhase.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnerPhase.type = parts[4].toLowerCase();
+                this.spawnerPhase.type = parts[4].trim().toLowerCase();
             }
         }
         this.spawnerPhase.initialize();
@@ -618,50 +485,50 @@ var Spawner = (function () {
                 this.spawnerRadius.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnerRadius.type = parts[4].toLowerCase();
+                this.spawnerRadius.type = parts[4].trim().toLowerCase();
             }
         }
         this.spawnerRadius.initialize();
-        this.spawnedRadius = new ValueModifier(5);
-        if ("spawnedRadius" in spawner) {
-            var parts = spawner["spawnedRadius"].split(",");
+        this.bulletRadius = new ValueModifier(5);
+        if ("bulletRadius" in spawner) {
+            var parts = spawner["bulletRadius"].split(",");
             if (parts.length >= 1) {
-                this.spawnedRadius.minValue = parseFloat(parts[0]);
+                this.bulletRadius.minValue = parseFloat(parts[0]);
             }
             if (parts.length >= 2) {
-                this.spawnedRadius.maxValue = parseFloat(parts[1]);
+                this.bulletRadius.maxValue = parseFloat(parts[1]);
             }
             if (parts.length >= 3) {
-                this.spawnedRadius.rate = parseFloat(parts[2]);
+                this.bulletRadius.rate = parseFloat(parts[2]);
             }
             if (parts.length >= 4) {
-                this.spawnedRadius.timeBetween = parseFloat(parts[3]);
+                this.bulletRadius.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnedRadius.type = parts[4].toLowerCase();
+                this.bulletRadius.type = parts[4].trim().toLowerCase();
             }
         }
-        this.spawnedRadius.initialize();
-        this.spawnedColor = new ValueModifier(0xff0000);
-        if ("spawnedColor" in spawner) {
-            var parts = spawner["spawnedColor"].split(",");
+        this.bulletRadius.initialize();
+        this.bulletColor = new ValueModifier(0xff0000);
+        if ("bulletColor" in spawner) {
+            var parts = spawner["bulletColor"].split(",");
             if (parts.length >= 1) {
-                this.spawnedColor.minValue = parseFloat(parts[0]);
+                this.bulletColor.minValue = parseFloat(parts[0]);
             }
             if (parts.length >= 2) {
-                this.spawnedColor.maxValue = parseFloat(parts[1]);
+                this.bulletColor.maxValue = parseFloat(parts[1]);
             }
             if (parts.length >= 3) {
-                this.spawnedColor.rate = parseFloat(parts[2]);
+                this.bulletColor.rate = parseFloat(parts[2]);
             }
             if (parts.length >= 4) {
-                this.spawnedColor.timeBetween = parseFloat(parts[3]);
+                this.bulletColor.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnedColor.type = parts[4].toLowerCase();
+                this.bulletColor.type = parts[4].trim().toLowerCase();
             }
         }
-        this.spawnedColor.initialize();
+        this.bulletColor.initialize();
         this.spawnedSpeed = new ValueModifier(2);
         if ("spawnedSpeed" in spawner) {
             var parts = spawner["spawnedSpeed"].split(",");
@@ -678,7 +545,7 @@ var Spawner = (function () {
                 this.spawnedSpeed.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnedSpeed.type = parts[4].toLowerCase();
+                this.spawnedSpeed.type = parts[4].trim().toLowerCase();
             }
         }
         this.spawnedSpeed.initialize();
@@ -698,7 +565,7 @@ var Spawner = (function () {
                 this.spawnedNumber.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnedNumber.type = parts[4].toLowerCase();
+                this.spawnedNumber.type = parts[4].trim().toLowerCase();
             }
         }
         this.spawnedNumber.initialize();
@@ -718,7 +585,7 @@ var Spawner = (function () {
                 this.spawnedAngle.timeBetween = parseFloat(parts[3]);
             }
             if (parts.length >= 5) {
-                this.spawnedAngle.type = parts[4].toLowerCase();
+                this.spawnedAngle.type = parts[4].trim().toLowerCase();
             }
         }
         this.spawnedAngle.initialize();
@@ -728,6 +595,8 @@ var Spawner = (function () {
     };
     Spawner.prototype.clone = function () {
         var spawner = new Spawner(this.name);
+        spawner.x = this.x;
+        spawner.y = this.y;
         spawner.spawnPattern = this.spawnPattern;
         spawner.patternIndex = this.patternIndex;
         spawner.currentPatternTime = this.currentPatternTime;
@@ -735,8 +604,8 @@ var Spawner = (function () {
         spawner.patternRepeat = this.patternRepeat;
         spawner.spawnerPhase = this.spawnerPhase.clone();
         spawner.spawnerRadius = this.spawnerRadius.clone();
-        spawner.spawnedRadius = this.spawnedRadius.clone();
-        spawner.spawnedColor = this.spawnedColor.clone();
+        spawner.bulletRadius = this.bulletRadius.clone();
+        spawner.bulletColor = this.bulletColor.clone();
         spawner.spawnedSpeed = this.spawnedSpeed.clone();
         spawner.spawnedNumber = this.spawnedNumber.clone();
         spawner.spawnedAngle = this.spawnedAngle.clone();
@@ -748,8 +617,8 @@ var Spawner = (function () {
         }
         this.spawnerPhase.update();
         this.spawnerRadius.update();
-        this.spawnedRadius.update();
-        this.spawnedColor.update();
+        this.bulletRadius.update();
+        this.bulletColor.update();
         this.spawnedNumber.update();
         this.spawnedAngle.update();
         var result = this.movement.getNextValues(this.x, this.y, 0, 0);
@@ -769,7 +638,7 @@ var Spawner = (function () {
                     var positionY = this.y + this.spawnerRadius.currentValue * Math.sin(radians(spawnedAngle));
                     if (this.spawnPattern[this.patternIndex] == "bullet") {
                         var bullet = new Bullet(positionX, positionY);
-                        bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.spawnedRadius.currentValue, this.spawnedColor.currentValue);
+                        bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.bulletRadius.currentValue, this.bulletColor.currentValue);
                         world.addEntity(bullet);
                     }
                     else {
@@ -833,9 +702,9 @@ var GameWorld = (function () {
         this.boss = new Boss();
         if ("spawners" in script) {
             this.definedSpawners = {};
-            for (var name_3 in script["spawners"]) {
-                this.definedSpawners[name_3.toLowerCase()] = new Spawner(name_3.toLowerCase());
-                this.definedSpawners[name_3.toLowerCase()].initialize(script["spawners"][name_3]);
+            for (var name_2 in script["spawners"]) {
+                this.definedSpawners[name_2.toLowerCase()] = new Spawner(name_2.toLowerCase());
+                this.definedSpawners[name_2.toLowerCase()].initialize(script["spawners"][name_2]);
             }
         }
         if ("boss" in script) {
