@@ -1,67 +1,69 @@
 /// <reference path="Entity.ts"/>
 
-class Boss implements Entity{
-    x: number;
-    y: number;
+namespace Talakat {
+    export class Boss implements Entity {
+        x: number;
+        y: number;
 
-    private script:GameScript;
-    
-    private health:number;
-    private maxHealth:number;
+        private script: GameScript;
 
-    constructor(){
-        this.script = new GameScript();
-    }
+        private health: number;
+        private maxHealth: number;
 
-    initialize(script:any):void{
-        this.x = width / 2;
-        this.y = height / 4;
-        this.maxHealth = 3000;
-        if("health" in script){
-            this.maxHealth = parseInt(script["health"]);
+        constructor() {
+            this.script = new GameScript();
         }
-        if("position" in script){
-            let parts:string[] = script["position"].split(",");
-            if(parts.length >= 1){
-                this.x = parseFloat(parts[0]) * width;
+
+        initialize(script: any): void {
+            this.x = width / 2;
+            this.y = height / 4;
+            this.maxHealth = 3000;
+            if ("health" in script) {
+                this.maxHealth = parseInt(script["health"]);
             }
-            if(parts.length >= 2){
-                this.y = parseFloat(parts[1]) * height;
+            if ("position" in script) {
+                let parts: string[] = script["position"].split(",");
+                if (parts.length >= 1) {
+                    this.x = parseFloat(parts[0]) * width;
+                }
+                if (parts.length >= 2) {
+                    this.y = parseFloat(parts[1]) * height;
+                }
             }
+            if ("script" in script) {
+                this.script.initialize(script["script"]);
+            }
+            this.health = this.maxHealth;
         }
-        if("script" in script){
-            this.script.initialize(script["script"]);
+
+        clone(): Entity {
+            let boss: Boss = new Boss();
+            boss.x = this.x;
+            boss.y = this.y;
+            boss.health = this.health;
+            boss.maxHealth = this.maxHealth;
+            boss.script = this.script.clone();
+            return boss;
         }
-        this.health = this.maxHealth;
-    }
 
-    clone(): Entity {
-        let boss:Boss = new Boss();
-        boss.x = this.x;
-        boss.y = this.y;
-        boss.health = this.health;
-        boss.maxHealth = this.maxHealth;
-        boss.script = this.script.clone();
-        return boss;
-    }
-
-    getCollider(): Collider {
-        return null;
-    }
-
-    getHealth():number{
-        return this.health / this.maxHealth;
-    }
-    
-    update(world:World): void {
-        this.health -= 1;
-        if(this.health < 0){
-            this.health = 0;
+        getCollider(): Collider {
+            return null;
         }
-        this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
-    }
 
-    draw(): void {
-        
+        getHealth(): number {
+            return this.health / this.maxHealth;
+        }
+
+        update(world: World): void {
+            this.health -= 1;
+            if (this.health < 0) {
+                this.health = 0;
+            }
+            this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+        }
+
+        draw(): void {
+
+        }
     }
 }
