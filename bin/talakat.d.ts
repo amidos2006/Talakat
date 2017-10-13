@@ -1,55 +1,6 @@
 declare namespace Talakat {
-    class CircleCollider implements Collider {
-        position: Point;
-        radius: number;
-        constructor(x: number, y: number, radius: number);
-        checkCollision(c: Collider): boolean;
-    }
-}
-declare namespace Talakat {
     interface Collider {
         checkCollision(c: Collider): any;
-    }
-}
-declare namespace Talakat {
-    interface GameEvent {
-        apply(world: World, x: number, y: number): void;
-    }
-}
-declare namespace Talakat {
-    class ClearEvent implements GameEvent {
-        name: string;
-        constructor(name: string);
-        apply(world: World, x: number, y: number): void;
-    }
-}
-declare namespace Talakat {
-    class SpawnEvent implements GameEvent {
-        name: string;
-        radius: number;
-        phase: number;
-        speed: number;
-        direction: number;
-        constructor(name: string, radius: number, phase: number, speed: number, direction: number);
-        apply(world: World, x: number, y: number): void;
-    }
-}
-declare namespace Talakat {
-    class ConditionalEvent implements GameEvent {
-        health: number;
-        events: GameEvent[];
-        constructor(input: any);
-        apply(world: World, x: number, y: number): void;
-    }
-}
-declare namespace Talakat {
-    class GameScript {
-        private events;
-        private currentIndex;
-        constructor();
-        initialize(script: any): void;
-        clone(): GameScript;
-        update(world: World, x: number, y: number, health: number): void;
     }
 }
 declare namespace Talakat {
@@ -62,6 +13,14 @@ declare namespace Talakat {
         multiply(value?: number): Point;
         normalize(): Point;
         magnitude(): number;
+    }
+}
+declare namespace Talakat {
+    class CircleCollider implements Collider {
+        position: Point;
+        radius: number;
+        constructor(x: number, y: number, radius: number);
+        checkCollision(c: Collider): boolean;
     }
 }
 declare namespace Talakat {
@@ -78,48 +37,6 @@ declare namespace Talakat {
         initialize(): void;
         clone(): ValueModifier;
         update(): void;
-    }
-}
-declare namespace Talakat {
-    interface Entity {
-        x: number;
-        y: number;
-        clone(): Entity;
-        getCollider(): Collider;
-        update(world: World): void;
-        draw(): void;
-    }
-}
-declare namespace Talakat {
-    class Boss implements Entity {
-        x: number;
-        y: number;
-        private script;
-        private health;
-        private maxHealth;
-        constructor();
-        initialize(script: any): void;
-        clone(): Entity;
-        getCollider(): Collider;
-        getHealth(): number;
-        update(world: World): void;
-        draw(): void;
-    }
-}
-declare namespace Talakat {
-    class Bullet implements Entity {
-        x: number;
-        y: number;
-        private radius;
-        private color;
-        private pattern;
-        private collider;
-        constructor(x: number, y: number);
-        initialize(speed?: number, direction?: number, radius?: number, color?: number): void;
-        clone(): Entity;
-        getCollider(): Collider;
-        update(world: World): void;
-        draw(): void;
     }
 }
 declare namespace Talakat {
@@ -140,7 +57,39 @@ declare namespace Talakat {
         clone(): Entity;
         applyAction(action: Point): void;
         update(world: World): void;
-        draw(): void;
+    }
+}
+declare namespace Talakat {
+    interface MovementPattern {
+        adjustParameters(newValues: any[]): void;
+        getParameters(): any[];
+        getNextValues(x: number, y: number, diameter: number, color: number): any;
+    }
+}
+declare namespace Talakat {
+    class LinePattern implements MovementPattern {
+        private direction;
+        private speedMag;
+        private speed;
+        constructor(speed: number, direction: number);
+        adjustParameters(newValues: any[]): void;
+        getParameters(): any[];
+        getNextValues(x: number, y: number, radius: number, color: number): any;
+    }
+}
+declare namespace Talakat {
+    class Bullet implements Entity {
+        x: number;
+        y: number;
+        private radius;
+        private color;
+        private pattern;
+        private collider;
+        constructor(x: number, y: number);
+        initialize(speed?: number, direction?: number, radius?: number, color?: number): void;
+        clone(): Entity;
+        getCollider(): Collider;
+        update(world: World): void;
     }
 }
 declare namespace Talakat {
@@ -167,41 +116,12 @@ declare namespace Talakat {
         getCollider(): Collider;
         clone(): Entity;
         update(world: World): void;
-        draw(): void;
     }
 }
 declare namespace Talakat {
-    class LinePattern implements MovementPattern {
-        private direction;
-        private speedMag;
-        private speed;
-        constructor(speed: number, direction: number);
-        adjustParameters(newValues: any[]): void;
-        getParameters(): any[];
-        getNextValues(x: number, y: number, radius: number, color: number): any;
-    }
-}
-declare namespace Talakat {
-    interface MovementPattern {
-        adjustParameters(newValues: any[]): void;
-        getParameters(): any[];
-        getNextValues(x: number, y: number, diameter: number, color: number): any;
-    }
-}
-declare namespace Talakat {
-    interface World {
-        clone(): World;
-        isWon(): boolean;
-        isLose(): boolean;
-        checkCollision(entity: Entity): void;
-        addEntity(entity: Entity): void;
-        removeEntity(entity: Entity): void;
-        update(action: any): void;
-        draw(): void;
-    }
-}
-declare namespace Talakat {
-    class GameWorld implements World {
+    class World {
+        width: number;
+        height: number;
         definedSpawners: any;
         player: Player;
         boss: Boss;
@@ -209,10 +129,11 @@ declare namespace Talakat {
         spawners: Spawner[];
         private created;
         private deleted;
-        constructor();
+        constructor(width: number, height: number);
         initialize(script: any): void;
         clone(): World;
         isWon(): boolean;
+        checkInWorld(x: number, y: number, radius: number): boolean;
         isLose(): boolean;
         checkCollision(entity: Entity): void;
         addEntity(entity: Entity): void;
@@ -221,6 +142,70 @@ declare namespace Talakat {
         removeAllSpawners(): void;
         removeSpawners(name: string): void;
         update(action: Point): void;
-        draw(): void;
+    }
+}
+declare namespace Talakat {
+    interface Entity {
+        x: number;
+        y: number;
+        clone(): Entity;
+        getCollider(): Collider;
+        update(world: World): void;
+    }
+}
+declare namespace Talakat {
+    interface GameEvent {
+        apply(world: World, x: number, y: number): void;
+    }
+}
+declare namespace Talakat {
+    class SpawnEvent implements GameEvent {
+        name: string;
+        radius: number;
+        phase: number;
+        speed: number;
+        direction: number;
+        constructor(name: string, radius: number, phase: number, speed: number, direction: number);
+        apply(world: World, x: number, y: number): void;
+    }
+}
+declare namespace Talakat {
+    class ClearEvent implements GameEvent {
+        name: string;
+        constructor(name: string);
+        apply(world: World, x: number, y: number): void;
+    }
+}
+declare namespace Talakat {
+    class ConditionalEvent implements GameEvent {
+        health: number;
+        events: GameEvent[];
+        constructor(input: any);
+        apply(world: World, x: number, y: number): void;
+    }
+}
+declare namespace Talakat {
+    class GameScript {
+        private events;
+        private currentIndex;
+        constructor();
+        initialize(script: any): void;
+        clone(): GameScript;
+        update(world: World, x: number, y: number, health: number): void;
+    }
+}
+declare namespace Talakat {
+    class Boss implements Entity {
+        x: number;
+        y: number;
+        private script;
+        private health;
+        private maxHealth;
+        constructor();
+        initialize(width: number, height: number, script: any): void;
+        clone(): Entity;
+        getCollider(): Collider;
+        getHealth(): number;
+        update(world: World): void;
     }
 }

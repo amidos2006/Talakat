@@ -1,4 +1,6 @@
 /// <reference path="Entity.ts"/>
+/// <reference path="../Movements/LinePattern.ts"/>
+/// <reference path="../Collisions/CircleCollider.ts"/>
 
 namespace Talakat {
     export class Bullet implements Entity {
@@ -7,7 +9,7 @@ namespace Talakat {
 
         private radius: number;
         private color: number;
-        private pattern: MovementPattern;
+        private pattern: LinePattern;
         private collider: CircleCollider;
 
         constructor(x: number, y: number) {
@@ -35,7 +37,7 @@ namespace Talakat {
             return this.collider;
         }
 
-        update(world: World): void {
+        update(world:World): void {
             let result = this.pattern.getNextValues(this.x, this.y, this.radius, this.color);
             this.x = result["x"];
             this.y = result["y"];
@@ -46,20 +48,11 @@ namespace Talakat {
             this.collider.position.y = this.y;
             this.collider.radius = this.radius;
 
-            if (this.x + this.radius < 0 || this.y + this.radius < 0 ||
-                this.x - this.radius > width || this.y - this.radius > height) {
+            if (!world.checkInWorld(this.x, this.y, this.radius)) {
                 world.removeEntity(this);
             }
 
             world.checkCollision(this);
-        }
-
-        draw(): void {
-            strokeWeight(0);
-            fill(color(this.color >> 16 & 0xff, this.color >> 8 & 0xff, this.color >> 0 & 0xff));
-            ellipse(this.x, this.y, 2 * this.radius, 2 * this.radius);
-            fill(color(255, 255, 255));
-            ellipse(this.x, this.y, 1.75 * this.radius, 1.75 * this.radius);
         }
     }
 }

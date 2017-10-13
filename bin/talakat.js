@@ -1,165 +1,5 @@
 var Talakat;
 (function (Talakat) {
-    var CircleCollider = (function () {
-        function CircleCollider(x, y, radius) {
-            this.position = new Talakat.Point(x, y);
-            this.radius = radius;
-        }
-        CircleCollider.prototype.checkCollision = function (c) {
-            if (c instanceof CircleCollider) {
-                var distance = c.position.subtract(this.position.x, this.position.y).magnitude();
-                var colDist = c.radius + this.radius;
-                return distance < colDist;
-            }
-            return false;
-        };
-        return CircleCollider;
-    }());
-    Talakat.CircleCollider = CircleCollider;
-})(Talakat || (Talakat = {}));
-/// <reference path="GameEvent.ts"/>
-var Talakat;
-(function (Talakat) {
-    var ClearEvent = (function () {
-        function ClearEvent(name) {
-            this.name = name;
-        }
-        ClearEvent.prototype.apply = function (world, x, y) {
-            if (this.name.toLowerCase() == "bullet") {
-                world.removeAllBullets();
-            }
-            else if (this.name.toLowerCase() == "spawner") {
-                world.removeAllSpawners();
-            }
-            else {
-                world.removeSpawners(this.name.toLowerCase());
-            }
-        };
-        return ClearEvent;
-    }());
-    Talakat.ClearEvent = ClearEvent;
-})(Talakat || (Talakat = {}));
-/// <reference path="GameEvent.ts"/>
-var Talakat;
-(function (Talakat) {
-    var SpawnEvent = (function () {
-        function SpawnEvent(name, radius, phase, speed, direction) {
-            this.name = name;
-            this.radius = radius;
-            this.phase = phase;
-            this.speed = speed;
-            this.direction = direction;
-        }
-        SpawnEvent.prototype.apply = function (world, x, y) {
-            var spawned = null;
-            if (this.name.toLowerCase() == "bullet") {
-                spawned = new Talakat.Bullet(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase));
-                spawned.initialize(this.speed, this.direction);
-            }
-            else {
-                spawned = world.definedSpawners[this.name.toLowerCase()].clone();
-                spawned.setStartingValues(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase), this.speed, this.direction);
-            }
-            world.addEntity(spawned);
-        };
-        return SpawnEvent;
-    }());
-    Talakat.SpawnEvent = SpawnEvent;
-})(Talakat || (Talakat = {}));
-/// <reference path="GameEvent.ts"/>
-/// <reference path="SpawnEvent.ts"/>
-/// <reference path="ClearEvent.ts"/>
-var Talakat;
-(function (Talakat) {
-    var ConditionalEvent = (function () {
-        function ConditionalEvent(input) {
-            this.health = 100;
-            if ("health" in input) {
-                this.health = 100 * parseFloat(input["health"]);
-            }
-            this.events = [];
-            if ("events" in input) {
-                for (var _i = 0, _a = input["events"]; _i < _a.length; _i++) {
-                    var s = _a[_i];
-                    var parts = s.split(",");
-                    var type = "";
-                    var name_1 = "";
-                    var radius = 0;
-                    var phase = 0;
-                    var speed = 0;
-                    var direction = 0;
-                    if (parts.length >= 1) {
-                        type = parts[0].trim().toLowerCase();
-                    }
-                    if (parts.length >= 2) {
-                        name_1 = parts[1].trim().toLowerCase();
-                    }
-                    if (parts.length >= 3) {
-                        radius = parseInt(parts[2]);
-                    }
-                    if (parts.length >= 4) {
-                        phase = parseInt(parts[3]);
-                    }
-                    if (parts.length >= 5) {
-                        speed = parseInt(parts[4]);
-                    }
-                    if (parts.length >= 6) {
-                        direction = parseInt(parts[5]);
-                    }
-                    if (type == "spawn" || type == "add") {
-                        this.events.push(new Talakat.SpawnEvent(name_1, radius, phase, speed, direction));
-                    }
-                    if (type == "delete" || type == "clear") {
-                        this.events.push(new Talakat.ClearEvent(name_1));
-                    }
-                }
-            }
-        }
-        ConditionalEvent.prototype.apply = function (world, x, y) {
-            for (var _i = 0, _a = this.events; _i < _a.length; _i++) {
-                var e = _a[_i];
-                e.apply(world, x, y);
-            }
-        };
-        return ConditionalEvent;
-    }());
-    Talakat.ConditionalEvent = ConditionalEvent;
-})(Talakat || (Talakat = {}));
-/// <reference path="ConditionalEvent.ts"/>
-var Talakat;
-(function (Talakat) {
-    var GameScript = (function () {
-        function GameScript() {
-        }
-        GameScript.prototype.initialize = function (script) {
-            this.currentIndex = 0;
-            this.events = [];
-            for (var _i = 0, script_1 = script; _i < script_1.length; _i++) {
-                var s = script_1[_i];
-                this.events.push(new Talakat.ConditionalEvent(s));
-            }
-        };
-        GameScript.prototype.clone = function () {
-            var script = new GameScript();
-            script.events = this.events;
-            script.currentIndex = this.currentIndex;
-            return script;
-        };
-        GameScript.prototype.update = function (world, x, y, health) {
-            if (this.currentIndex >= this.events.length) {
-                return;
-            }
-            if (health <= this.events[this.currentIndex].health) {
-                this.events[this.currentIndex].apply(world, x, y);
-                this.currentIndex += 1;
-            }
-        };
-        return GameScript;
-    }());
-    Talakat.GameScript = GameScript;
-})(Talakat || (Talakat = {}));
-var Talakat;
-(function (Talakat) {
     var Point = (function () {
         function Point(x, y) {
             if (x === void 0) { x = 0; }
@@ -194,6 +34,27 @@ var Talakat;
         return Point;
     }());
     Talakat.Point = Point;
+})(Talakat || (Talakat = {}));
+/// <reference path="Collider.ts"/>
+/// <reference path="../Data/Point.ts"/>
+var Talakat;
+(function (Talakat) {
+    var CircleCollider = (function () {
+        function CircleCollider(x, y, radius) {
+            this.position = new Talakat.Point(x, y);
+            this.radius = radius;
+        }
+        CircleCollider.prototype.checkCollision = function (c) {
+            if (c instanceof CircleCollider) {
+                var distance = c.position.subtract(this.position.x, this.position.y).magnitude();
+                var colDist = c.radius + this.radius;
+                return distance < colDist;
+            }
+            return false;
+        };
+        return CircleCollider;
+    }());
+    Talakat.CircleCollider = CircleCollider;
 })(Talakat || (Talakat = {}));
 var Talakat;
 (function (Talakat) {
@@ -266,117 +127,8 @@ var Talakat;
     Talakat.ValueModifier = ValueModifier;
 })(Talakat || (Talakat = {}));
 /// <reference path="Entity.ts"/>
-var Talakat;
-(function (Talakat) {
-    var Boss = (function () {
-        function Boss() {
-            this.script = new Talakat.GameScript();
-        }
-        Boss.prototype.initialize = function (script) {
-            this.x = width / 2;
-            this.y = height / 4;
-            this.maxHealth = 3000;
-            if ("health" in script) {
-                this.maxHealth = parseInt(script["health"]);
-            }
-            if ("position" in script) {
-                var parts = script["position"].split(",");
-                if (parts.length >= 1) {
-                    this.x = parseFloat(parts[0]) * width;
-                }
-                if (parts.length >= 2) {
-                    this.y = parseFloat(parts[1]) * height;
-                }
-            }
-            if ("script" in script) {
-                this.script.initialize(script["script"]);
-            }
-            this.health = this.maxHealth;
-        };
-        Boss.prototype.clone = function () {
-            var boss = new Boss();
-            boss.x = this.x;
-            boss.y = this.y;
-            boss.health = this.health;
-            boss.maxHealth = this.maxHealth;
-            boss.script = this.script.clone();
-            return boss;
-        };
-        Boss.prototype.getCollider = function () {
-            return null;
-        };
-        Boss.prototype.getHealth = function () {
-            return this.health / this.maxHealth;
-        };
-        Boss.prototype.update = function (world) {
-            this.health -= 1;
-            if (this.health < 0) {
-                this.health = 0;
-            }
-            this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
-        };
-        Boss.prototype.draw = function () {
-        };
-        return Boss;
-    }());
-    Talakat.Boss = Boss;
-})(Talakat || (Talakat = {}));
-/// <reference path="Entity.ts"/>
-var Talakat;
-(function (Talakat) {
-    var Bullet = (function () {
-        function Bullet(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        Bullet.prototype.initialize = function (speed, direction, radius, color) {
-            if (speed === void 0) { speed = 4; }
-            if (direction === void 0) { direction = 90; }
-            if (radius === void 0) { radius = 8; }
-            if (color === void 0) { color = 0xff6666; }
-            this.pattern = new Talakat.LinePattern(speed, direction);
-            this.collider = new Talakat.CircleCollider(this.x, this.y, this.radius);
-            this.radius = radius;
-            this.color = color;
-        };
-        Bullet.prototype.clone = function () {
-            var b = new Bullet(this.x, this.y);
-            b.pattern = this.pattern;
-            b.collider = this.collider;
-            b.radius = this.radius;
-            b.color = this.color;
-            return b;
-        };
-        Bullet.prototype.getCollider = function () {
-            return this.collider;
-        };
-        Bullet.prototype.update = function (world) {
-            var result = this.pattern.getNextValues(this.x, this.y, this.radius, this.color);
-            this.x = result["x"];
-            this.y = result["y"];
-            this.radius = result["radius"];
-            this.color = result["color"];
-            this.collider.position.x = this.x;
-            this.collider.position.y = this.y;
-            this.collider.radius = this.radius;
-            if (this.x + this.radius < 0 || this.y + this.radius < 0 ||
-                this.x - this.radius > width || this.y - this.radius > height) {
-                world.removeEntity(this);
-            }
-            world.checkCollision(this);
-        };
-        Bullet.prototype.draw = function () {
-            strokeWeight(0);
-            fill(color(this.color >> 16 & 0xff, this.color >> 8 & 0xff, this.color >> 0 & 0xff));
-            ellipse(this.x, this.y, 2 * this.radius, 2 * this.radius);
-            fill(color(255, 255, 255));
-            ellipse(this.x, this.y, 1.75 * this.radius, 1.75 * this.radius);
-        };
-        return Bullet;
-    }());
-    Talakat.Bullet = Bullet;
-})(Talakat || (Talakat = {}));
-/// <reference path="Entity.ts"/>
+/// <reference path="../Collisions/CircleCollider.ts"/>
+/// <reference path="../Data/Point.ts"/>
 var Talakat;
 (function (Talakat) {
     var Player = (function () {
@@ -431,29 +183,102 @@ var Talakat;
             if (this.y - this.radius < 0) {
                 this.y = this.radius;
             }
-            if (this.x + this.radius > width) {
-                this.x = width - this.radius;
+            if (this.x + this.radius > world.width) {
+                this.x = world.width - this.radius;
             }
-            if (this.y + this.radius > height) {
-                this.y = height - this.radius;
+            if (this.y + this.radius > world.height) {
+                this.y = world.height - this.radius;
             }
             this.collider.position.x = this.x;
             this.collider.position.y = this.y;
             this.collider.radius = this.radius;
         };
-        Player.prototype.draw = function () {
-            if (this.currentLives <= 0) {
-                return;
-            }
-            strokeWeight(0);
-            fill(color(255, 255, 255));
-            ellipse(this.x, this.y, 2 * this.radius, 2 * this.radius);
-        };
         return Player;
     }());
     Talakat.Player = Player;
 })(Talakat || (Talakat = {}));
+/// <reference path="../Data/Point.ts"/>
+/// <reference path="MovementPattern.ts"/>
+var Talakat;
+(function (Talakat) {
+    var LinePattern = (function () {
+        function LinePattern(speed, direction) {
+            this.speed = new Talakat.Point(speed * Math.cos(direction * Math.PI / 180), speed * Math.sin(direction * Math.PI / 180));
+            this.speedMag = speed;
+            this.direction = direction;
+        }
+        LinePattern.prototype.adjustParameters = function (newValues) {
+            this.speed = new Talakat.Point(newValues[0] * Math.cos(newValues[1] * Math.PI / 180), newValues[0] * Math.sin(newValues[1] * Math.PI / 180));
+            this.speedMag = newValues[0];
+            this.direction = newValues[1];
+        };
+        LinePattern.prototype.getParameters = function () {
+            return [this.speedMag, this.direction];
+        };
+        LinePattern.prototype.getNextValues = function (x, y, radius, color) {
+            return {
+                "x": x + this.speed.x,
+                "y": y + this.speed.y,
+                "radius": radius,
+                "color": color
+            };
+        };
+        return LinePattern;
+    }());
+    Talakat.LinePattern = LinePattern;
+})(Talakat || (Talakat = {}));
 /// <reference path="Entity.ts"/>
+/// <reference path="../Movements/LinePattern.ts"/>
+/// <reference path="../Collisions/CircleCollider.ts"/>
+var Talakat;
+(function (Talakat) {
+    var Bullet = (function () {
+        function Bullet(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        Bullet.prototype.initialize = function (speed, direction, radius, color) {
+            if (speed === void 0) { speed = 4; }
+            if (direction === void 0) { direction = 90; }
+            if (radius === void 0) { radius = 8; }
+            if (color === void 0) { color = 0xff6666; }
+            this.pattern = new Talakat.LinePattern(speed, direction);
+            this.collider = new Talakat.CircleCollider(this.x, this.y, this.radius);
+            this.radius = radius;
+            this.color = color;
+        };
+        Bullet.prototype.clone = function () {
+            var b = new Bullet(this.x, this.y);
+            b.pattern = this.pattern;
+            b.collider = this.collider;
+            b.radius = this.radius;
+            b.color = this.color;
+            return b;
+        };
+        Bullet.prototype.getCollider = function () {
+            return this.collider;
+        };
+        Bullet.prototype.update = function (world) {
+            var result = this.pattern.getNextValues(this.x, this.y, this.radius, this.color);
+            this.x = result["x"];
+            this.y = result["y"];
+            this.radius = result["radius"];
+            this.color = result["color"];
+            this.collider.position.x = this.x;
+            this.collider.position.y = this.y;
+            this.collider.radius = this.radius;
+            if (!world.checkInWorld(this.x, this.y, this.radius)) {
+                world.removeEntity(this);
+            }
+            world.checkCollision(this);
+        };
+        return Bullet;
+    }());
+    Talakat.Bullet = Bullet;
+})(Talakat || (Talakat = {}));
+/// <reference path="Entity.ts"/>
+/// <reference path="../Data/ValueModifier.ts"/>
+/// <reference path="../Movements/LinePattern.ts"/>
 var Talakat;
 (function (Talakat) {
     var Spawner = (function () {
@@ -666,8 +491,7 @@ var Talakat;
             var result = this.movement.getNextValues(this.x, this.y, 0, 0);
             this.x = result["x"];
             this.y = result["y"];
-            if (this.x + this.spawnerRadius.currentValue < 0 || this.y + this.spawnerRadius.currentValue < 0 ||
-                this.x - this.spawnerRadius.currentValue > width || this.y - this.spawnerRadius.currentValue > height) {
+            if (!world.checkInWorld(this.x, this.y, this.spawnerRadius.currentValue)) {
                 world.removeEntity(this);
             }
             if (this.currentPatternTime == 0) {
@@ -676,8 +500,8 @@ var Talakat;
                 if (this.spawnPattern[this.patternIndex] != "wait") {
                     for (var i = 0; i < Math.floor(this.spawnedNumber.currentValue); i++) {
                         var spawnedAngle = this.movement.getParameters()[1] + this.spawnerPhase.currentValue + i * this.spawnedAngle.currentValue / Math.floor(this.spawnedNumber.currentValue);
-                        var positionX = this.x + this.spawnerRadius.currentValue * Math.cos(radians(spawnedAngle));
-                        var positionY = this.y + this.spawnerRadius.currentValue * Math.sin(radians(spawnedAngle));
+                        var positionX = this.x + this.spawnerRadius.currentValue * Math.cos(spawnedAngle * Math.PI / 180);
+                        var positionY = this.y + this.spawnerRadius.currentValue * Math.sin(spawnedAngle * Math.PI / 180);
                         if (this.spawnPattern[this.patternIndex] == "bullet") {
                             var bullet = new Talakat.Bullet(positionX, positionY);
                             bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.bulletRadius.currentValue, this.bulletColor.currentValue);
@@ -700,71 +524,44 @@ var Talakat;
                 }
             }
         };
-        Spawner.prototype.draw = function () {
-            // stroke(color(100, 100, 255));
-            // strokeWeight(2);
-            // noFill();
-            // ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue)
-        };
         return Spawner;
     }());
     Talakat.Spawner = Spawner;
 })(Talakat || (Talakat = {}));
+/// <reference path="../Entities/Player.ts"/>
+/// <reference path="../Entities/Boss.ts"/>
+/// <reference path="../Entities/Bullet.ts"/>
+/// <reference path="../Entities/Spawner.ts"/>
+/// <reference path="../Entities/Entity.ts"/>
+/// <reference path="../Data/Point.ts"/>
 var Talakat;
 (function (Talakat) {
-    var LinePattern = (function () {
-        function LinePattern(speed, direction) {
-            this.speed = new Talakat.Point(speed * Math.cos(radians(direction)), speed * Math.sin(radians(direction)));
-            this.speedMag = speed;
-            this.direction = direction;
-        }
-        LinePattern.prototype.adjustParameters = function (newValues) {
-            this.speed = new Talakat.Point(newValues[0] * Math.cos(radians(newValues[1])), newValues[0] * Math.sin(radians(newValues[1])));
-            this.speedMag = newValues[0];
-            this.direction = newValues[1];
-        };
-        LinePattern.prototype.getParameters = function () {
-            return [this.speedMag, this.direction];
-        };
-        LinePattern.prototype.getNextValues = function (x, y, radius, color) {
-            return {
-                "x": x + this.speed.x,
-                "y": y + this.speed.y,
-                "radius": radius,
-                "color": color
-            };
-        };
-        return LinePattern;
-    }());
-    Talakat.LinePattern = LinePattern;
-})(Talakat || (Talakat = {}));
-/// <reference path="World.ts"/>
-var Talakat;
-(function (Talakat) {
-    var GameWorld = (function () {
-        function GameWorld() {
+    var World = (function () {
+        function World(width, height) {
+            this.width = width;
+            this.height = height;
             this.bullets = [];
             this.spawners = [];
             this.created = [];
             this.deleted = [];
         }
-        GameWorld.prototype.initialize = function (script) {
-            this.player = new Talakat.Player(width / 2, 0.8 * height);
+        World.prototype.initialize = function (script) {
+            this.player = new Talakat.Player(this.width / 2, 0.8 * this.height);
             this.player.initialize();
             this.boss = new Talakat.Boss();
             if ("spawners" in script) {
                 this.definedSpawners = {};
-                for (var name_2 in script["spawners"]) {
-                    this.definedSpawners[name_2.toLowerCase()] = new Talakat.Spawner(name_2.toLowerCase());
-                    this.definedSpawners[name_2.toLowerCase()].initialize(script["spawners"][name_2]);
+                for (var name_1 in script["spawners"]) {
+                    this.definedSpawners[name_1.toLowerCase()] = new Talakat.Spawner(name_1.toLowerCase());
+                    this.definedSpawners[name_1.toLowerCase()].initialize(script["spawners"][name_1]);
                 }
             }
             if ("boss" in script) {
-                this.boss.initialize(script["boss"]);
+                this.boss.initialize(this.width, this.height, script["boss"]);
             }
         };
-        GameWorld.prototype.clone = function () {
-            var newWorld = new GameWorld();
+        World.prototype.clone = function () {
+            var newWorld = new World(this.width, this.height);
             for (var _i = 0, _a = this.bullets; _i < _a.length; _i++) {
                 var e = _a[_i];
                 var temp = e.clone();
@@ -780,37 +577,41 @@ var Talakat;
             newWorld.definedSpawners = this.definedSpawners;
             return newWorld;
         };
-        GameWorld.prototype.isWon = function () {
+        World.prototype.isWon = function () {
             if (this.boss == null) {
                 return false;
             }
             return this.boss.getHealth() <= 0;
         };
-        GameWorld.prototype.isLose = function () {
+        World.prototype.checkInWorld = function (x, y, radius) {
+            return !(x + radius < 0 || y + radius < 0 ||
+                x - radius > this.width || y - radius > this.height);
+        };
+        World.prototype.isLose = function () {
             if (this.player == null) {
                 return false;
             }
             return this.player.getLives() <= 0;
         };
-        GameWorld.prototype.checkCollision = function (entity) {
+        World.prototype.checkCollision = function (entity) {
             var result = this.player.getCollider().checkCollision(entity.getCollider());
             if (result) {
                 this.player.die(this);
             }
         };
-        GameWorld.prototype.addEntity = function (entity) {
+        World.prototype.addEntity = function (entity) {
             this.created.push(entity);
         };
-        GameWorld.prototype.removeEntity = function (entity) {
+        World.prototype.removeEntity = function (entity) {
             this.deleted.push(entity);
         };
-        GameWorld.prototype.removeAllBullets = function () {
+        World.prototype.removeAllBullets = function () {
             this.deleted = this.deleted.concat(this.bullets);
         };
-        GameWorld.prototype.removeAllSpawners = function () {
+        World.prototype.removeAllSpawners = function () {
             this.deleted = this.deleted.concat(this.spawners);
         };
-        GameWorld.prototype.removeSpawners = function (name) {
+        World.prototype.removeSpawners = function (name) {
             for (var _i = 0, _a = this.spawners; _i < _a.length; _i++) {
                 var s = _a[_i];
                 if (name.toLowerCase() == s.name.toLowerCase()) {
@@ -818,7 +619,7 @@ var Talakat;
                 }
             }
         };
-        GameWorld.prototype.update = function (action) {
+        World.prototype.update = function (action) {
             if (this.isLose() || this.isWon()) {
                 return;
             }
@@ -864,35 +665,205 @@ var Talakat;
             }
             this.deleted.length = 0;
         };
-        GameWorld.prototype.draw = function () {
-            if (this.boss != null) {
-                noFill();
-                strokeWeight(4);
-                stroke(color(124, 46, 46));
-                arc(this.boss.x, this.boss.y, 200, 200, 0, 2 * PI * this.boss.getHealth());
+        return World;
+    }());
+    Talakat.World = World;
+})(Talakat || (Talakat = {}));
+/// <reference path="../Collisions/Collider.ts"/>
+/// <reference path="../Worlds/World.ts"/>
+/// <reference path="GameEvent.ts"/>
+var Talakat;
+(function (Talakat) {
+    var SpawnEvent = (function () {
+        function SpawnEvent(name, radius, phase, speed, direction) {
+            this.name = name;
+            this.radius = radius;
+            this.phase = phase;
+            this.speed = speed;
+            this.direction = direction;
+        }
+        SpawnEvent.prototype.apply = function (world, x, y) {
+            var spawned = null;
+            if (this.name.toLowerCase() == "bullet") {
+                spawned = new Talakat.Bullet(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase));
+                spawned.initialize(this.speed, this.direction);
             }
-            if (this.player != null) {
-                this.player.draw();
+            else {
+                spawned = (world).definedSpawners[this.name.toLowerCase()].clone();
+                spawned.setStartingValues(x + this.radius * Math.cos(this.phase), y + this.radius * Math.sin(this.phase), this.speed, this.direction);
             }
-            for (var _i = 0, _a = this.bullets; _i < _a.length; _i++) {
-                var e = _a[_i];
-                e.draw();
+            world.addEntity(spawned);
+        };
+        return SpawnEvent;
+    }());
+    Talakat.SpawnEvent = SpawnEvent;
+})(Talakat || (Talakat = {}));
+/// <reference path="GameEvent.ts"/>
+var Talakat;
+(function (Talakat) {
+    var ClearEvent = (function () {
+        function ClearEvent(name) {
+            this.name = name;
+        }
+        ClearEvent.prototype.apply = function (world, x, y) {
+            if (this.name.toLowerCase() == "bullet") {
+                (world).removeAllBullets();
             }
-            for (var _b = 0, _c = this.spawners; _b < _c.length; _b++) {
-                var e = _c[_b];
-                e.draw();
+            else if (this.name.toLowerCase() == "spawner") {
+                (world).removeAllSpawners();
             }
-            if (this.boss != null) {
-                this.boss.draw();
-            }
-            if (this.isWon()) {
-                // TODO:
-            }
-            if (this.isLose()) {
-                // TODO:
+            else {
+                (world).removeSpawners(this.name.toLowerCase());
             }
         };
-        return GameWorld;
+        return ClearEvent;
     }());
-    Talakat.GameWorld = GameWorld;
+    Talakat.ClearEvent = ClearEvent;
+})(Talakat || (Talakat = {}));
+/// <reference path="GameEvent.ts"/>
+/// <reference path="SpawnEvent.ts"/>
+/// <reference path="ClearEvent.ts"/>
+var Talakat;
+(function (Talakat) {
+    var ConditionalEvent = (function () {
+        function ConditionalEvent(input) {
+            this.health = 100;
+            if ("health" in input) {
+                this.health = 100 * parseFloat(input["health"]);
+            }
+            this.events = [];
+            if ("events" in input) {
+                for (var _i = 0, _a = input["events"]; _i < _a.length; _i++) {
+                    var s = _a[_i];
+                    var parts = s.split(",");
+                    var type = "";
+                    var name_2 = "";
+                    var radius = 0;
+                    var phase = 0;
+                    var speed = 0;
+                    var direction = 0;
+                    if (parts.length >= 1) {
+                        type = parts[0].trim().toLowerCase();
+                    }
+                    if (parts.length >= 2) {
+                        name_2 = parts[1].trim().toLowerCase();
+                    }
+                    if (parts.length >= 3) {
+                        radius = parseInt(parts[2]);
+                    }
+                    if (parts.length >= 4) {
+                        phase = parseInt(parts[3]);
+                    }
+                    if (parts.length >= 5) {
+                        speed = parseInt(parts[4]);
+                    }
+                    if (parts.length >= 6) {
+                        direction = parseInt(parts[5]);
+                    }
+                    if (type == "spawn" || type == "add") {
+                        this.events.push(new Talakat.SpawnEvent(name_2, radius, phase, speed, direction));
+                    }
+                    if (type == "delete" || type == "clear") {
+                        this.events.push(new Talakat.ClearEvent(name_2));
+                    }
+                }
+            }
+        }
+        ConditionalEvent.prototype.apply = function (world, x, y) {
+            for (var _i = 0, _a = this.events; _i < _a.length; _i++) {
+                var e = _a[_i];
+                e.apply(world, x, y);
+            }
+        };
+        return ConditionalEvent;
+    }());
+    Talakat.ConditionalEvent = ConditionalEvent;
+})(Talakat || (Talakat = {}));
+/// <reference path="ConditionalEvent.ts"/>
+var Talakat;
+(function (Talakat) {
+    var GameScript = (function () {
+        function GameScript() {
+        }
+        GameScript.prototype.initialize = function (script) {
+            this.currentIndex = 0;
+            this.events = [];
+            for (var _i = 0, script_1 = script; _i < script_1.length; _i++) {
+                var s = script_1[_i];
+                this.events.push(new Talakat.ConditionalEvent(s));
+            }
+        };
+        GameScript.prototype.clone = function () {
+            var script = new GameScript();
+            script.events = this.events;
+            script.currentIndex = this.currentIndex;
+            return script;
+        };
+        GameScript.prototype.update = function (world, x, y, health) {
+            if (this.currentIndex >= this.events.length) {
+                return;
+            }
+            if (health <= this.events[this.currentIndex].health) {
+                this.events[this.currentIndex].apply(world, x, y);
+                this.currentIndex += 1;
+            }
+        };
+        return GameScript;
+    }());
+    Talakat.GameScript = GameScript;
+})(Talakat || (Talakat = {}));
+/// <reference path="Entity.ts"/>
+/// <reference path="../Events/GameScript.ts"/>
+var Talakat;
+(function (Talakat) {
+    var Boss = (function () {
+        function Boss() {
+            this.script = new Talakat.GameScript();
+        }
+        Boss.prototype.initialize = function (width, height, script) {
+            this.x = width / 2;
+            this.y = height / 4;
+            this.maxHealth = 3000;
+            if ("health" in script) {
+                this.maxHealth = parseInt(script["health"]);
+            }
+            if ("position" in script) {
+                var parts = script["position"].split(",");
+                if (parts.length >= 1) {
+                    this.x = parseFloat(parts[0]) * width;
+                }
+                if (parts.length >= 2) {
+                    this.y = parseFloat(parts[1]) * height;
+                }
+            }
+            if ("script" in script) {
+                this.script.initialize(script["script"]);
+            }
+            this.health = this.maxHealth;
+        };
+        Boss.prototype.clone = function () {
+            var boss = new Boss();
+            boss.x = this.x;
+            boss.y = this.y;
+            boss.health = this.health;
+            boss.maxHealth = this.maxHealth;
+            boss.script = this.script.clone();
+            return boss;
+        };
+        Boss.prototype.getCollider = function () {
+            return null;
+        };
+        Boss.prototype.getHealth = function () {
+            return this.health / this.maxHealth;
+        };
+        Boss.prototype.update = function (world) {
+            this.health -= 1;
+            if (this.health < 0) {
+                this.health = 0;
+            }
+            this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+        };
+        return Boss;
+    }());
+    Talakat.Boss = Boss;
 })(Talakat || (Talakat = {}));

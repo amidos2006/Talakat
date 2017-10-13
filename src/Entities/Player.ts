@@ -1,4 +1,6 @@
 /// <reference path="Entity.ts"/>
+/// <reference path="../Collisions/CircleCollider.ts"/>
+/// <reference path="../Data/Point.ts"/>
 
 namespace Talakat {
     export class Player implements Entity {
@@ -38,7 +40,7 @@ namespace Talakat {
         die(world: World): void {
             this.currentLives -= 1;
             if (this.currentLives > 0) {
-                (<GameWorld>world).removeAllBullets();
+                world.removeAllBullets();
                 this.x = this.originalX;
                 this.y = this.originalY;
             }
@@ -62,31 +64,22 @@ namespace Talakat {
             this.y += delta.y;
         }
 
-        update(world: World): void {
+        update(world:World): void {
             if (this.x - this.radius < 0) {
                 this.x = this.radius;
             }
             if (this.y - this.radius < 0) {
                 this.y = this.radius;
             }
-            if (this.x + this.radius > width) {
-                this.x = width - this.radius;
+            if (this.x + this.radius > world.width) {
+                this.x = world.width - this.radius;
             }
-            if (this.y + this.radius > height) {
-                this.y = height - this.radius;
+            if (this.y + this.radius > world.height) {
+                this.y = world.height - this.radius;
             }
             this.collider.position.x = this.x;
             this.collider.position.y = this.y;
             this.collider.radius = this.radius;
-        }
-
-        draw(): void {
-            if (this.currentLives <= 0) {
-                return;
-            }
-            strokeWeight(0);
-            fill(color(255, 255, 255));
-            ellipse(this.x, this.y, 2 * this.radius, 2 * this.radius);
         }
     }
 }

@@ -1,12 +1,15 @@
 /// <reference path="Entity.ts"/>
+/// <reference path="../Data/ValueModifier.ts"/>
+/// <reference path="../Movements/LinePattern.ts"/>
 
 namespace Talakat {
     export class Spawner implements Entity {
         x: number;
         y: number;
+
         name: string;
 
-        private movement: MovementPattern;
+        private movement: LinePattern;
 
         private spawnPattern: string[];
         private patternIndex: number;
@@ -230,7 +233,7 @@ namespace Talakat {
             return spawner;
         }
 
-        update(world: World): void {
+        update(world:World): void {
             if (this.currentPatternTime > 0) {
                 this.currentPatternTime -= 1;
             }
@@ -245,9 +248,8 @@ namespace Talakat {
             this.x = result["x"];
             this.y = result["y"];
 
-            if (this.x + this.spawnerRadius.currentValue < 0 || this.y + this.spawnerRadius.currentValue < 0 ||
-                this.x - this.spawnerRadius.currentValue > width || this.y - this.spawnerRadius.currentValue > height) {
-                world.removeEntity(this);
+            if (!world.checkInWorld(this.x, this.y, this.spawnerRadius.currentValue)) {
+                    world.removeEntity(this);
             }
 
             if (this.currentPatternTime == 0) {
@@ -257,15 +259,15 @@ namespace Talakat {
                 if (this.spawnPattern[this.patternIndex] != "wait") {
                     for (let i: number = 0; i < Math.floor(this.spawnedNumber.currentValue); i++) {
                         let spawnedAngle: number = this.movement.getParameters()[1] + this.spawnerPhase.currentValue + i * this.spawnedAngle.currentValue / Math.floor(this.spawnedNumber.currentValue);
-                        let positionX: number = this.x + this.spawnerRadius.currentValue * Math.cos(radians(spawnedAngle));
-                        let positionY: number = this.y + this.spawnerRadius.currentValue * Math.sin(radians(spawnedAngle));
+                        let positionX: number = this.x + this.spawnerRadius.currentValue * Math.cos(spawnedAngle * Math.PI / 180);
+                        let positionY: number = this.y + this.spawnerRadius.currentValue * Math.sin(spawnedAngle * Math.PI / 180);
                         if (this.spawnPattern[this.patternIndex] == "bullet") {
                             let bullet: Bullet = new Bullet(positionX, positionY);
                             bullet.initialize(this.spawnedSpeed.currentValue, spawnedAngle, this.bulletRadius.currentValue, this.bulletColor.currentValue)
                             world.addEntity(bullet);
                         }
                         else {
-                            let spawner: Spawner = (<GameWorld>world).definedSpawners[this.spawnPattern[this.patternIndex]].clone();
+                            let spawner: Spawner = world.definedSpawners[this.spawnPattern[this.patternIndex]].clone();
                             if (spawner) {
                                 spawner.setStartingValues(positionX, positionY, this.spawnedSpeed.currentValue, spawnedAngle);
                                 world.addEntity(spawner);
@@ -280,13 +282,6 @@ namespace Talakat {
                     }
                 }
             }
-        }
-
-        draw(): void {
-            // stroke(color(100, 100, 255));
-            // strokeWeight(2);
-            // noFill();
-            // ellipse(this.x, this.y, 2 * this.spawnerRadius.currentValue, 2 * this.spawnerRadius.currentValue)
         }
     }
 }

@@ -1,4 +1,5 @@
 /// <reference path="Entity.ts"/>
+/// <reference path="../Events/GameScript.ts"/>
 
 namespace Talakat {
     export class Boss implements Entity {
@@ -14,7 +15,7 @@ namespace Talakat {
             this.script = new GameScript();
         }
 
-        initialize(script: any): void {
+        initialize(width:number, height:number, script: any): void {
             this.x = width / 2;
             this.y = height / 4;
             this.maxHealth = 3000;
@@ -54,16 +55,12 @@ namespace Talakat {
             return this.health / this.maxHealth;
         }
 
-        update(world: World): void {
+        update(world:World): void {
             this.health -= 1;
             if (this.health < 0) {
                 this.health = 0;
             }
             this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
-        }
-
-        draw(): void {
-
         }
     }
 }

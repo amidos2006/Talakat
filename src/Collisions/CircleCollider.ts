@@ -1,3 +1,6 @@
+/// <reference path="Collider.ts"/>
+/// <reference path="../Data/Point.ts"/>
+
 namespace Talakat{
     export class CircleCollider implements Collider{
         position:Point;

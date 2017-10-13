@@ -23,7 +23,7 @@ namespace Talakat {
                 spawned.initialize(this.speed, this.direction);
             }
             else {
-                spawned = (<GameWorld>world).definedSpawners[this.name.toLowerCase()].clone();
+                spawned = (world).definedSpawners[this.name.toLowerCase()].clone();
                 spawned.setStartingValues(x + this.radius * Math.cos(this.phase),
                     y + this.radius * Math.sin(this.phase), this.speed, this.direction);
             }

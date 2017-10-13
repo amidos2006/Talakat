@@ -1,3 +1,6 @@
+/// <reference path="../Collisions/Collider.ts"/>
+/// <reference path="../Worlds/World.ts"/>
+
 namespace Talakat{
     export interface Entity{
         x:number;
@@ -6,6 +9,5 @@ namespace Talakat{
         clone():Entity;
         getCollider():Collider;
         update(world:World):void;
-        draw():void;
     }
 }

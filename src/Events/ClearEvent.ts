@@ -10,13 +10,13 @@ namespace Talakat{
 
         apply(world:World, x:number, y:number): void {
             if(this.name.toLowerCase() == "bullet"){
-                (<GameWorld>world).removeAllBullets();
+                (world).removeAllBullets();
             }
             else if(this.name.toLowerCase() == "spawner"){
-                (<GameWorld>world).removeAllSpawners();
+                (world).removeAllSpawners();
             }
             else{
-                (<GameWorld>world).removeSpawners(this.name.toLowerCase());
+                (world).removeSpawners(this.name.toLowerCase());
             }
         }
     }
