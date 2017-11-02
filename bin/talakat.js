@@ -540,6 +540,7 @@ var Talakat;
         function World(width, height) {
             this.width = width;
             this.height = height;
+            this.hideUnknown = false;
             this.bullets = [];
             this.spawners = [];
             this.created = [];
@@ -560,7 +561,8 @@ var Talakat;
                 this.boss.initialize(this.width, this.height, script["boss"]);
             }
         };
-        World.prototype.clone = function () {
+        World.prototype.clone = function (hideUnknown) {
+            if (hideUnknown === void 0) { hideUnknown = false; }
             var newWorld = new World(this.width, this.height);
             for (var _i = 0, _a = this.bullets; _i < _a.length; _i++) {
                 var e = _a[_i];
@@ -575,6 +577,7 @@ var Talakat;
             newWorld.player = this.player.clone();
             newWorld.boss = this.boss.clone();
             newWorld.definedSpawners = this.definedSpawners;
+            newWorld.hideUnknown = hideUnknown;
             return newWorld;
         };
         World.prototype.isWon = function () {
@@ -861,7 +864,9 @@ var Talakat;
             if (this.health < 0) {
                 this.health = 0;
             }
-            this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+            if (!world.hideUnknown) {
+                this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+            }
         };
         return Boss;
     }());
