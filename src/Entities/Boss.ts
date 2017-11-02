@@ -60,7 +60,9 @@ namespace Talakat {
             if (this.health < 0) {
                 this.health = 0;
             }
-            this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+            if(!world.hideUnknown){
+                this.script.update(world, this.x, this.y, 100 * this.health / this.maxHealth);
+            }
         }
     }
 }

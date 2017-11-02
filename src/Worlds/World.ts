@@ -9,6 +9,7 @@ namespace Talakat {
     export class World{
         width: number;
         height: number;
+        hideUnknown:boolean;
 
         definedSpawners: any;
 
@@ -23,6 +24,7 @@ namespace Talakat {
         constructor(width:number, height:number) {
             this.width = width;
             this.height = height;
+            this.hideUnknown = false;
             this.bullets = [];
             this.spawners = [];
             this.created = [];
@@ -45,7 +47,7 @@ namespace Talakat {
             }
         }
 
-        clone(): World {
+        clone(hideUnknown:boolean=false): World {
             let newWorld: World = new World(this.width, this.height);
             for (let e of this.bullets) {
                 let temp: Entity = e.clone();
@@ -58,6 +60,7 @@ namespace Talakat {
             newWorld.player = <Player>this.player.clone();
             newWorld.boss = <Boss>this.boss.clone();
             newWorld.definedSpawners = this.definedSpawners;
+            newWorld.hideUnknown = hideUnknown;
             return newWorld;
         }
 
