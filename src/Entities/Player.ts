@@ -6,13 +6,13 @@ namespace Talakat {
     export class Player implements Entity {
         x: number;
         y: number;
+        radius: number;
 
         private originalX: number;
         private originalY: number;
 
         private currentLives: number;
         private speed: number;
-        private radius: number;
         private collider: CircleCollider;
 
         constructor(x: number, y: number, radius: number = 3, speed: number = 4, lives: number = 1) {

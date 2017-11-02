@@ -43,11 +43,11 @@ declare namespace Talakat {
     class Player implements Entity {
         x: number;
         y: number;
+        radius: number;
         private originalX;
         private originalY;
         private currentLives;
         private speed;
-        private radius;
         private collider;
         constructor(x: number, y: number, radius?: number, speed?: number, lives?: number);
         initialize(): void;
@@ -81,8 +81,8 @@ declare namespace Talakat {
     class Bullet implements Entity {
         x: number;
         y: number;
-        private radius;
-        private color;
+        radius: number;
+        color: number;
         private pattern;
         private collider;
         constructor(x: number, y: number);

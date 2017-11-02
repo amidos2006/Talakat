@@ -6,9 +6,9 @@ namespace Talakat {
     export class Bullet implements Entity {
         x: number;
         y: number;
+        radius: number;
+        color: number;
 
-        private radius: number;
-        private color: number;
         private pattern: LinePattern;
         private collider: CircleCollider;
 
