@@ -123,6 +123,7 @@ declare namespace Talakat {
         width: number;
         height: number;
         hideUnknown: boolean;
+        disableCollision: boolean;
         definedSpawners: any;
         player: Player;
         boss: Boss;
@@ -132,7 +133,7 @@ declare namespace Talakat {
         private deleted;
         constructor(width: number, height: number);
         initialize(script: any): void;
-        clone(hideUnknown?: boolean): World;
+        clone(): World;
         isWon(): boolean;
         checkInWorld(x: number, y: number, radius: number): boolean;
         isLose(): boolean;

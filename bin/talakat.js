@@ -541,6 +541,7 @@ var Talakat;
             this.width = width;
             this.height = height;
             this.hideUnknown = false;
+            this.disableCollision = false;
             this.bullets = [];
             this.spawners = [];
             this.created = [];
@@ -561,8 +562,7 @@ var Talakat;
                 this.boss.initialize(this.width, this.height, script["boss"]);
             }
         };
-        World.prototype.clone = function (hideUnknown) {
-            if (hideUnknown === void 0) { hideUnknown = false; }
+        World.prototype.clone = function () {
             var newWorld = new World(this.width, this.height);
             for (var _i = 0, _a = this.bullets; _i < _a.length; _i++) {
                 var e = _a[_i];
@@ -577,7 +577,8 @@ var Talakat;
             newWorld.player = this.player.clone();
             newWorld.boss = this.boss.clone();
             newWorld.definedSpawners = this.definedSpawners;
-            newWorld.hideUnknown = hideUnknown;
+            newWorld.hideUnknown = this.hideUnknown;
+            newWorld.disableCollision = this.disableCollision;
             return newWorld;
         };
         World.prototype.isWon = function () {
@@ -597,6 +598,9 @@ var Talakat;
             return this.player.getLives() <= 0;
         };
         World.prototype.checkCollision = function (entity) {
+            if (this.disableCollision) {
+                return;
+            }
             var result = this.player.getCollider().checkCollision(entity.getCollider());
             if (result) {
                 this.player.die(this);
@@ -626,7 +630,7 @@ var Talakat;
             if (this.isLose() || this.isWon()) {
                 return;
             }
-            if (this.player != null) {
+            if (this.player != null && !this.disableCollision) {
                 this.player.applyAction(action);
                 this.player.update(this);
             }
