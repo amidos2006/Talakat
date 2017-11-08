@@ -10,6 +10,7 @@ namespace Talakat {
         width: number;
         height: number;
         hideUnknown:boolean;
+        disableCollision:boolean;
 
         definedSpawners: any;
 
@@ -25,6 +26,7 @@ namespace Talakat {
             this.width = width;
             this.height = height;
             this.hideUnknown = false;
+            this.disableCollision = false;
             this.bullets = [];
             this.spawners = [];
             this.created = [];
@@ -47,7 +49,7 @@ namespace Talakat {
             }
         }
 
-        clone(hideUnknown:boolean=false): World {
+        clone(): World {
             let newWorld: World = new World(this.width, this.height);
             for (let e of this.bullets) {
                 let temp: Entity = e.clone();
@@ -60,7 +62,8 @@ namespace Talakat {
             newWorld.player = <Player>this.player.clone();
             newWorld.boss = <Boss>this.boss.clone();
             newWorld.definedSpawners = this.definedSpawners;
-            newWorld.hideUnknown = hideUnknown;
+            newWorld.hideUnknown = this.hideUnknown;
+            newWorld.disableCollision = this.disableCollision;
             return newWorld;
         }
 
@@ -84,6 +87,10 @@ namespace Talakat {
         }
 
         checkCollision(entity: Entity): void {
+            if(this.disableCollision){
+                return; 
+            }
+
             let result: boolean = this.player.getCollider().checkCollision(entity.getCollider());
             if (result) {
                 this.player.die(this);
@@ -119,7 +126,7 @@ namespace Talakat {
                 return;
             }
 
-            if (this.player != null) {
+            if (this.player != null && !this.disableCollision) {
                 this.player.applyAction(action);
                 this.player.update(this);
             }
