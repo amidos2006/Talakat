@@ -643,8 +643,12 @@ var Talakat;
                     s.update(this);
                 }
             }
-            for (var _b = 0, _c = this.created; _b < _c.length; _b++) {
-                var e = _c[_b];
+            for (var _b = 0, _c = this.bullets; _b < _c.length; _b++) {
+                var b = _c[_b];
+                b.update(this);
+            }
+            for (var _d = 0, _e = this.created; _d < _e.length; _d++) {
+                var e = _e[_d];
                 if (e instanceof Talakat.Bullet) {
                     this.bullets.push(e);
                 }
@@ -653,8 +657,8 @@ var Talakat;
                 }
             }
             this.created.length = 0;
-            for (var _d = 0, _e = this.deleted; _d < _e.length; _d++) {
-                var e = _e[_d];
+            for (var _f = 0, _g = this.deleted; _f < _g.length; _f++) {
+                var e = _g[_f];
                 if (e instanceof Talakat.Bullet) {
                     var index = this.bullets.indexOf(e);
                     if (index >= 0) {

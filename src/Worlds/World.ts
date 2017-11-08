@@ -138,6 +138,9 @@ namespace Talakat {
                     s.update(this);
                 }
             }
+            for (let b of this.bullets) {
+                b.update(this);
+            }
             for (let e of this.created) {
                 if (e instanceof Bullet) {
                     this.bullets.push(e);
