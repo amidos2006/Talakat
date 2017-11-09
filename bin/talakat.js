@@ -67,7 +67,7 @@ var Talakat;
             if (type === void 0) { type = "none"; }
             this.minValue = minValue;
             this.maxValue = maxValue;
-            if (this.minValue > this.maxValue) {
+            if (this.minValue > this.maxValue && rate != 0) {
                 this.minValue = maxValue;
                 this.maxValue = minValue;
             }

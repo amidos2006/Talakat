@@ -13,7 +13,7 @@ namespace Talakat {
         constructor(minValue: number = 0, maxValue: number = 0, rate: number = 0, timeBetween: number = 0, type: string = "none") {
             this.minValue = minValue;
             this.maxValue = maxValue;
-            if(this.minValue > this.maxValue){
+            if(this.minValue > this.maxValue && rate != 0){
                 this.minValue = maxValue;
                 this.maxValue = minValue;
             }
