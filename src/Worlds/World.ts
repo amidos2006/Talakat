@@ -23,7 +23,7 @@ namespace Talakat {
         private created: Entity[];
         private deleted: Entity[];
 
-        constructor(width:number, height:number, maximumBullets:number) {
+        constructor(width:number, height:number, maximumBullets:number=0) {
             this.width = width;
             this.height = height;
             this.maximumBullets = maximumBullets;

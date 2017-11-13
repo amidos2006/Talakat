@@ -542,6 +542,7 @@ var Talakat;
 (function (Talakat) {
     var World = (function () {
         function World(width, height, maximumBullets) {
+            if (maximumBullets === void 0) { maximumBullets = 0; }
             this.width = width;
             this.height = height;
             this.maximumBullets = maximumBullets;

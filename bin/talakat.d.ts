@@ -132,7 +132,7 @@ declare namespace Talakat {
         spawners: Spawner[];
         private created;
         private deleted;
-        constructor(width: number, height: number, maximumBullets: number);
+        constructor(width: number, height: number, maximumBullets?: number);
         initialize(script: any): void;
         clone(): World;
         isWon(): boolean;
