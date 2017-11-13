@@ -141,11 +141,11 @@ namespace Talakat {
                 }
             }
             let removeExtra:number=0;
-            if(this.bullets.length > this.maximumBullets){
+            if(this.bullets.length > this.maximumBullets && this.maximumBullets > 0){
                 removeExtra = this.bullets.length - this.maximumBullets;
             }
             for (let b of this.bullets) {
-                if(removeExtra > 0 ){
+                if(removeExtra > 0){
                     removeExtra -= 1;
                     this.removeEntity(b);
                 }

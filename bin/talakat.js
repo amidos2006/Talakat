@@ -649,7 +649,7 @@ var Talakat;
                 }
             }
             var removeExtra = 0;
-            if (this.bullets.length > this.maximumBullets) {
+            if (this.bullets.length > this.maximumBullets && this.maximumBullets > 0) {
                 removeExtra = this.bullets.length - this.maximumBullets;
             }
             for (var _b = 0, _c = this.bullets; _b < _c.length; _b++) {
