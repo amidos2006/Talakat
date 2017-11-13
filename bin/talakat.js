@@ -541,9 +541,10 @@ var Talakat;
 var Talakat;
 (function (Talakat) {
     var World = (function () {
-        function World(width, height) {
+        function World(width, height, maximumBullets) {
             this.width = width;
             this.height = height;
+            this.maximumBullets = maximumBullets;
             this.hideUnknown = false;
             this.disableCollision = false;
             this.bullets = [];
@@ -567,7 +568,7 @@ var Talakat;
             }
         };
         World.prototype.clone = function () {
-            var newWorld = new World(this.width, this.height);
+            var newWorld = new World(this.width, this.height, this.maximumBullets);
             for (var _i = 0, _a = this.bullets; _i < _a.length; _i++) {
                 var e = _a[_i];
                 var temp = e.clone();
@@ -647,9 +648,19 @@ var Talakat;
                     s.update(this);
                 }
             }
+            var removeExtra = 0;
+            if (this.bullets.length > this.maximumBullets) {
+                removeExtra = this.bullets.length - this.maximumBullets;
+            }
             for (var _b = 0, _c = this.bullets; _b < _c.length; _b++) {
                 var b = _c[_b];
-                b.update(this);
+                if (removeExtra > 0) {
+                    removeExtra -= 1;
+                    this.removeEntity(b);
+                }
+                else {
+                    b.update(this);
+                }
             }
             for (var _d = 0, _e = this.created; _d < _e.length; _d++) {
                 var e = _e[_d];

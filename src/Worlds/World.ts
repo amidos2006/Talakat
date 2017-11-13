@@ -9,8 +9,9 @@ namespace Talakat {
     export class World{
         width: number;
         height: number;
-        hideUnknown:boolean;
-        disableCollision:boolean;
+        maximumBullets: number;
+        hideUnknown: boolean;
+        disableCollision: boolean;
 
         definedSpawners: any;
 
@@ -22,9 +23,10 @@ namespace Talakat {
         private created: Entity[];
         private deleted: Entity[];
 
-        constructor(width:number, height:number) {
+        constructor(width:number, height:number, maximumBullets:number) {
             this.width = width;
             this.height = height;
+            this.maximumBullets = maximumBullets;
             this.hideUnknown = false;
             this.disableCollision = false;
             this.bullets = [];
@@ -50,7 +52,7 @@ namespace Talakat {
         }
 
         clone(): World {
-            let newWorld: World = new World(this.width, this.height);
+            let newWorld: World = new World(this.width, this.height, this.maximumBullets);
             for (let e of this.bullets) {
                 let temp: Entity = e.clone();
                 newWorld.bullets.push(<Bullet>temp);
@@ -138,9 +140,19 @@ namespace Talakat {
                     s.update(this);
                 }
             }
-            for (let b of this.bullets) {
-                b.update(this);
+            let removeExtra:number=0;
+            if(this.bullets.length > this.maximumBullets){
+                removeExtra = this.bullets.length - this.maximumBullets;
             }
+            for (let b of this.bullets) {
+                if(removeExtra > 0 ){
+                    removeExtra -= 1;
+                    this.removeEntity(b);
+                }
+                else{
+                    b.update(this);
+                }
+            }    
             for (let e of this.created) {
                 if (e instanceof Bullet) {
                     this.bullets.push(e);
