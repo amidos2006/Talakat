@@ -491,6 +491,7 @@ var Talakat;
             this.bulletRadius.update();
             this.bulletColor.update();
             this.spawnedNumber.update();
+            this.spawnedSpeed.update();
             this.spawnedAngle.update();
             var result = this.movement.getNextValues(this.x, this.y, 0, 0);
             this.x = result["x"];

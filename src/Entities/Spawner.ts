@@ -242,6 +242,7 @@ namespace Talakat {
             this.bulletRadius.update();
             this.bulletColor.update();
             this.spawnedNumber.update();
+            this.spawnedSpeed.update();
             this.spawnedAngle.update();
 
             let result = this.movement.getNextValues(this.x, this.y, 0, 0);
