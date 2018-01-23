@@ -644,11 +644,9 @@ var Talakat;
             if (this.boss != null) {
                 this.boss.update(this);
             }
-            if (!this.hideUnknown) {
-                for (var _i = 0, _a = this.spawners; _i < _a.length; _i++) {
-                    var s = _a[_i];
-                    s.update(this);
-                }
+            for (var _i = 0, _a = this.spawners; _i < _a.length; _i++) {
+                var s = _a[_i];
+                s.update(this);
             }
             var removeExtra = 0;
             if (this.bullets.length > this.maximumBullets && this.maximumBullets > 0) {

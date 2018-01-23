@@ -135,10 +135,8 @@ namespace Talakat {
             if (this.boss != null) {
                 this.boss.update(this);
             }
-            if(!this.hideUnknown){
-                for (let s of this.spawners) {
-                    s.update(this);
-                }
+            for (let s of this.spawners) {
+                s.update(this);
             }
             let removeExtra:number=0;
             if(this.bullets.length > this.maximumBullets && this.maximumBullets > 0){
